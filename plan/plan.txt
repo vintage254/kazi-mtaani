@@ -1,0 +1,156 @@
+
+📌 Kazi Mtaani Management System – Development Blueprint
+🎯 Goal
+To build a digital management platform for the Kazi Mtaani program that streamlines attendance tracking, payments, and reporting, while ensuring accountability and transparency using Face Recognition AI.
+
+🚀 Core Features
+1. Worker & Supervisor Accounts
+Authentication & role-based access using Clerk.
+
+
+Workers → View attendance, payment history, group details.
+
+
+Supervisors → Manage groups, approve attendance, oversee reports.
+
+
+
+2. Attendance System
+Workers check in by scanning a QR code at the worksite.
+
+
+System prompts for a quick selfie to verify identity.
+
+
+
+
+If match passes → attendance is logged.
+
+
+If mismatch → supervisor is alerted.
+
+
+Logs include worker ID, group, timestamp, location (GPS).
+
+
+Tech stack:
+QR Code → simple web/mobile scanner.
+
+
+Face Recognition → AWS Rekognition / Azure Face API / FaceNet.
+
+
+Storage → PostgreSQL (attendance logs, facial embeddings).
+
+
+
+3. Payments & M-Pesa Integration
+Supervisors approve attendance → triggers payment batch.
+
+
+M-Pesa API used for automated disbursements.
+
+
+Payment tracking:
+
+
+Worker dashboard shows payment status, history, deductions.
+
+
+Admin dashboard can reconcile funds vs disbursed wages.
+
+
+
+4. Supervisor Reports (Smart Reporting)
+Weekly attendance + payment data compiled into PDF/Excel.
+
+
+Reports include:
+
+
+Attendance rates by group/worker.
+
+
+Payment summaries.
+
+
+Alerts for irregularities (e.g., repeated absences).
+
+
+Exportable for submission to higher authorities.
+
+
+
+📊 System Architecture Overview
+Frontend (Next.js)
+
+
+Worker dashboard (attendance, payments).
+
+
+Supervisor dashboard (group management, reports).
+
+
+QR code for check-in.
+
+
+Backend (Node.js / Express + PostgreSQL)
+
+
+Authentication (Clerk).
+
+
+Attendance & payment APIs.
+
+
+
+Payments
+
+
+M-Pesa API integration for batch disbursement.
+
+
+
+🔐 Security & Integrity
+Workers can’t clock in for others → AI face recognition prevents “buddy punching”.
+
+
+Payments tied directly to attendance logs.
+
+
+Supervisors have audit trails (who approved what, when).
+
+
+
+📌 Development Roadmap
+Phase 1 – Foundations
+User accounts (Clerk).
+
+
+Dashboards (Worker + Supervisor).
+
+
+Group management (assign workers to supervisors).
+
+
+Phase 2 – Attendance & AI
+QR code attendance system.
+
+
+
+Attendance logs with timestamp + location.
+
+
+Phase 3 – Payments
+M-Pesa API integration.
+
+
+Worker payment history dashboard.
+
+
+Admin reconciliation dashboard.
+
+
+
+
+
