@@ -3,6 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { UserButton, SignOutButton } from '@clerk/nextjs'
 
 const Sidebar = () => {
   const pathname = usePathname()
@@ -91,18 +92,21 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      {/* User Info */}
-      <div className="mt-auto pt-8">
-        <div className="border-t border-gray-700 pt-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium">S</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Supervisor</p>
-              <p className="text-xs text-gray-400">Online</p>
+      {/* User Info & Sign Out */}
+      <div className="mt-auto pt-4">
+        <div className="border-t border-gray-700 pt-4 space-y-4">
+          <div className="flex items-center space-x-3 px-2">
+            <UserButton afterSignOutUrl="/" />
+            <div className="text-sm">
+              <p className="font-medium text-white">Supervisor</p>
             </div>
           </div>
+          <SignOutButton>
+            <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 text-gray-300 hover:bg-red-600 hover:text-white">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+              <span className="font-medium">Sign Out</span>
+            </button>
+          </SignOutButton>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { getUserByClerkId } from '@/lib/db/user-actions'
+import { getUserByClerkIdAction, createUserAction } from '@/lib/db/actions'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -30,12 +30,33 @@ export default function ProtectedRoute({
       }
 
       try {
-        const dbUser = await getUserByClerkId(user.id)
+        console.log('🔐 ProtectedRoute: Checking user authorization for:', user.id)
+        const dbUser = await getUserByClerkIdAction(user.id)
         
         if (!dbUser) {
-          router.push('/onboarding')
-          return
+          console.log('❌ No user found in database, creating as worker automatically')
+          try {
+            const newUser = await createUserAction({
+              clerkId: user.id,
+              email: user.primaryEmailAddress?.emailAddress || '',
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              role: 'worker',
+              phone: user.primaryPhoneNumber?.phoneNumber || ''
+            })
+            console.log('✅ Auto-created user as worker:', newUser)
+            
+            // Continue with the newly created user
+            setIsAuthorized(true)
+            return
+          } catch (error) {
+            console.error('Error auto-creating user:', error)
+            router.push('/')
+            return
+          }
         }
+        
+        console.log('✅ User found in database:', dbUser)
 
         // Check if user has required role
         if (requiredRole && dbUser.role !== requiredRole) {

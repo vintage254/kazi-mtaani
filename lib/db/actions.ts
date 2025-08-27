@@ -1,10 +1,97 @@
+'use server'
+
 import { db } from './index'
+
+// Helper function to ensure database connection
+function ensureDb() {
+  if (!db) {
+    throw new Error('Database connection failed')
+  }
+  return db
+}
 import { groups, workers, users, attendance, payments, alerts } from './schema'
-import { eq, desc, count, avg, and, gte, lte } from 'drizzle-orm'
+import { eq, desc, count, avg, and, gte, lte, isNull } from 'drizzle-orm'
+
+// Server action to get user by clerk ID
+export async function getUserByClerkIdAction(clerkId: string) {
+  console.log('🔍 Server action: Looking for user with clerkId:', clerkId)
+  
+  if (!db) {
+    console.log('❌ Database not available on server side')
+    return null
+  }
+  
+  const result = await db
+    .select({
+      id: users.id,
+      clerkId: users.clerkId,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      phone: users.phone,
+      isActive: users.isActive
+    })
+    .from(users)
+    .where(eq(users.clerkId, clerkId))
+    .limit(1)
+
+  console.log('📊 Server action: Database query result:', result.length > 0 ? result[0] : 'No user found')
+  return result[0] || null
+}
+
+// User creation server action for onboarding
+export async function createUserAction(userData: {
+  clerkId: string
+  email: string
+  firstName?: string
+  lastName?: string
+  role?: 'worker' | 'supervisor' | 'admin'
+  phone?: string
+}) {
+  console.log('✨ Server action: Creating new user:', userData)
+  
+  if (!db) {
+    throw new Error('Database not available')
+  }
+
+  // First check if user already exists
+  const existingUser = await getUserByClerkIdAction(userData.clerkId)
+  if (existingUser) {
+    console.log('👤 User already exists, returning existing user:', existingUser)
+    return existingUser
+  }
+  
+  const result = await db
+    .insert(users)
+    .values({
+      clerkId: userData.clerkId,
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      role: userData.role || 'worker',
+      phone: userData.phone,
+      isActive: true,
+      createdAt: new Date()
+    })
+    .returning({
+      id: users.id,
+      clerkId: users.clerkId,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      phone: users.phone,
+      isActive: users.isActive
+    })
+
+  console.log('✅ Server action: User created successfully:', result[0])
+  return result[0]
+}
 
 // Group actions
 export async function getGroups() {
-  return await db
+  return await ensureDb()
     .select({
       id: groups.id,
       name: groups.name,
@@ -21,7 +108,8 @@ export async function getGroups() {
 }
 
 export async function getGroupById(id: number) {
-  const groupData = await db
+  
+  const groupData = await ensureDb()
     .select({
       id: groups.id,
       name: groups.name,
@@ -29,6 +117,7 @@ export async function getGroupById(id: number) {
       location: groups.location,
       status: groups.status,
       createdAt: groups.createdAt,
+      supervisorId: groups.supervisorId,
       supervisorName: users.firstName,
     })
     .from(groups)
@@ -41,7 +130,8 @@ export async function getGroupById(id: number) {
 
 // Get groups with attendance statistics
 export async function getGroupsWithStats() {
-  return await db
+  
+  return await ensureDb()
     .select({
       id: groups.id,
       name: groups.name,
@@ -58,7 +148,8 @@ export async function getGroupsWithStats() {
 }
 
 export async function getWorkersByGroupId(groupId: number) {
-  return await db
+  
+  return await ensureDb()
     .select({
       id: workers.id,
       name: users.firstName,
@@ -75,8 +166,8 @@ export async function getWorkersByGroupId(groupId: number) {
 
 // Dashboard stats
 export async function getDashboardStats() {
-  const totalWorkers = await db.select({ count: count() }).from(workers)
-  const activeGroups = await db.select({ count: count() }).from(groups).where(eq(groups.status, 'active'))
+  const totalWorkers = await ensureDb().select({ count: count() }).from(workers)
+  const activeGroups = await ensureDb().select({ count: count() }).from(groups).where(eq(groups.status, 'active'))
   
   // Get today's attendance
   const today = new Date()
@@ -84,12 +175,12 @@ export async function getDashboardStats() {
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
   
-  const todayAttendance = await db
+  const todayAttendance = await ensureDb()
     .select({ count: count() })
     .from(attendance)
     .where(and(gte(attendance.createdAt, today), lte(attendance.createdAt, tomorrow)))
   
-  const presentToday = await db
+  const presentToday = await ensureDb()
     .select({ count: count() })
     .from(attendance)
     .where(and(
@@ -98,7 +189,7 @@ export async function getDashboardStats() {
       eq(attendance.status, 'present')
     ))
 
-  const pendingApprovals = await db
+  const pendingApprovals = await ensureDb()
     .select({ count: count() })
     .from(attendance)
     .where(eq(attendance.supervisorApproved, false))
@@ -117,7 +208,7 @@ export async function getDashboardStats() {
 
 // Recent activity
 export async function getRecentActivity() {
-  return await db
+  return await ensureDb()
     .select({
       id: attendance.id,
       workerName: users.firstName,
@@ -136,7 +227,7 @@ export async function getRecentActivity() {
 
 // Active alerts
 export async function getActiveAlerts() {
-  return await db
+  return await ensureDb()
     .select({
       id: alerts.id,
       type: alerts.type,
@@ -163,12 +254,12 @@ export async function getGroupAttendanceStats(groupId: number) {
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
-  const totalWorkers = await db
+  const totalWorkers = await ensureDb()
     .select({ count: count() })
     .from(workers)
     .where(eq(workers.groupId, groupId))
 
-  const presentToday = await db
+  const presentToday = await ensureDb()
     .select({ count: count() })
     .from(attendance)
     .where(and(
@@ -178,7 +269,7 @@ export async function getGroupAttendanceStats(groupId: number) {
       eq(attendance.status, 'present')
     ))
 
-  const absentToday = await db
+  const absentToday = await ensureDb()
     .select({ count: count() })
     .from(attendance)
     .where(and(
@@ -193,4 +284,177 @@ export async function getGroupAttendanceStats(groupId: number) {
     presentToday: presentToday[0]?.count || 0,
     absentToday: absentToday[0]?.count || 0,
   }
+}
+
+// Group CRUD operations
+export async function createGroup(groupData: {
+  name: string
+  description?: string
+  location: string
+  supervisorId?: number
+}) {
+  const result = await ensureDb()
+    .insert(groups)
+    .values({
+      name: groupData.name,
+      description: groupData.description,
+      location: groupData.location,
+      supervisorId: groupData.supervisorId,
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+    .returning({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      location: groups.location,
+      supervisorId: groups.supervisorId,
+      status: groups.status
+    })
+
+  return result[0]
+}
+
+export async function updateGroup(groupId: number, groupData: {
+  name?: string
+  description?: string
+  location?: string
+  supervisorId?: number
+  status?: 'active' | 'inactive' | 'suspended'
+}) {
+  const result = await ensureDb()
+    .update(groups)
+    .set({
+      ...groupData,
+      updatedAt: new Date()
+    })
+    .where(eq(groups.id, groupId))
+    .returning({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      location: groups.location,
+      supervisorId: groups.supervisorId,
+      status: groups.status
+    })
+
+  return result[0]
+}
+
+export async function deleteGroup(groupId: number) {
+  // First check if group has workers
+  const workersInGroup = await ensureDb()
+    .select({ count: count() })
+    .from(workers)
+    .where(eq(workers.groupId, groupId))
+
+  if (workersInGroup[0]?.count > 0) {
+    throw new Error('Cannot delete group with active workers. Please reassign workers first.')
+  }
+
+  await ensureDb()
+    .delete(groups)
+    .where(eq(groups.id, groupId))
+
+  return { success: true }
+}
+
+// Get all supervisors for assignment
+export async function getSupervisors() {
+  return await ensureDb()
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email
+    })
+    .from(users)
+    .where(eq(users.role, 'supervisor'))
+}
+
+// Worker assignment operations
+export async function assignWorkerToGroup(workerId: number, groupId: number) {
+  const result = await ensureDb()
+    .update(workers)
+    .set({
+      groupId: groupId
+    })
+    .where(eq(workers.id, workerId))
+    .returning({
+      id: workers.id,
+      groupId: workers.groupId
+    })
+
+  return result[0]
+}
+
+export async function removeWorkerFromGroup(workerId: number) {
+  const result = await ensureDb()
+    .update(workers)
+    .set({
+      groupId: null
+    })
+    .where(eq(workers.id, workerId))
+    .returning({
+      id: workers.id,
+      groupId: workers.groupId
+    })
+
+  return result[0]
+}
+
+// Get unassigned workers
+export async function getUnassignedWorkers() {
+  return await ensureDb()
+    .select({
+      id: workers.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      phone: users.phone,
+      position: workers.position,
+      isActive: workers.isActive
+    })
+    .from(workers)
+    .innerJoin(users, eq(workers.userId, users.id))
+    .where(isNull(workers.groupId))
+}
+
+// Create group with current supervisor as default supervisor
+export async function createGroupWithCurrentSupervisor(
+  groupData: {
+    name: string
+    description?: string
+    location: string
+  },
+  currentUserClerkId: string
+) {
+  // Get current user info
+  const currentUser = await getUserByClerkIdAction(currentUserClerkId)
+  
+  if (!currentUser || currentUser.role !== 'supervisor') {
+    throw new Error('Only supervisors can create groups')
+  }
+
+  const result = await ensureDb()
+    .insert(groups)
+    .values({
+      name: groupData.name,
+      description: groupData.description,
+      location: groupData.location,
+      supervisorId: currentUser.id, // Auto-assign current supervisor
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+    .returning({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      location: groups.location,
+      supervisorId: groups.supervisorId,
+      status: groups.status
+    })
+
+  return result[0]
 }
