@@ -12,11 +12,10 @@ const Home = () => {
   const router = useRouter()
 
   useEffect(() => {
-    const redirectAuthenticatedUser = async () => {
-      if (!isLoaded) return
-      
-      if (user) {
-        console.log(' Authenticated user detected, checking role for redirect')
+    // Only redirect if user is authenticated and we haven't shown the landing page yet
+    if (isLoaded && user) {
+      // Add a small delay to prevent immediate redirect loops
+      const timer = setTimeout(async () => {
         try {
           const dbUser = await getUserByClerkIdAction(user.id)
           
@@ -36,19 +35,16 @@ const Home = () => {
                 router.push('/worker/dashboard')
             }
           } else {
-            // User exists in Clerk but not in database, redirect to worker dashboard
-            // ProtectedRoute will handle auto-creation
+            // User exists in Clerk but not in database
             router.push('/worker/dashboard')
           }
         } catch (error) {
           console.error('Error checking user role:', error)
-          // Default to worker dashboard if error
-          router.push('/worker/dashboard')
         }
-      }
-    }
+      }, 100)
 
-    redirectAuthenticatedUser()
+      return () => clearTimeout(timer)
+    }
   }, [user, isLoaded, router])
 
   // Show loading while checking authentication

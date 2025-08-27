@@ -1,7 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
 import Sidebar from '@/components/supervisor/Sidebar'
-import ProtectedRoute from '@/components/ProtectedRoute'
 import { getGroupById, getWorkersByGroupId, getSupervisors } from '@/lib/db/actions'
 import { notFound } from 'next/navigation'
 import GroupDetailClient from './GroupDetailClient'
@@ -26,18 +25,14 @@ const GroupDetail = async ({ params }: GroupDetailProps) => {
   }
 
   return (
-    <ProtectedRoute requiredRole="supervisor">
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 p-8 bg-gray-50 min-h-screen">
-          <GroupDetailClient 
-            group={group} 
-            workers={workers} 
-            supervisors={supervisors} 
-          />
-        </div>
-      </div>
-    </ProtectedRoute>
+    <div className="flex">
+      <Sidebar />
+      <GroupDetailClient 
+        group={group} 
+        workers={workers} 
+        supervisors={supervisors}
+      />
+    </div>
   )
 }
 

@@ -2,9 +2,9 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getUserByClerkId } from '@/lib/db/user-actions'
 import { getWorkerByUserId } from '@/lib/db/worker-actions'
-import WorkerAttendanceClient from './WorkerAttendanceClient'
+import WorkerProfileClient from './WorkerProfileClient'
 
-export default async function WorkerAttendancePage() {
+export default async function WorkerProfilePage() {
   const { userId } = await auth()
   
   if (!userId) {
@@ -30,5 +30,5 @@ export default async function WorkerAttendancePage() {
     supervisor: workerData?.supervisorName || 'No Supervisor'
   }
 
-  return <WorkerAttendanceClient worker={worker} />
+  return <WorkerProfileClient worker={worker} user={user} workerData={workerData} />
 }

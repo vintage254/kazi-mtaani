@@ -1,6 +1,5 @@
 import React from 'react'
 import Sidebar from '@/components/supervisor/Sidebar'
-import ProtectedRoute from '@/components/ProtectedRoute'
 import { getDashboardStats, getRecentActivity, getActiveAlerts } from '@/lib/db/actions'
 
 const SupervisorDashboard = async () => {
@@ -9,9 +8,8 @@ const SupervisorDashboard = async () => {
   const activeAlerts = await getActiveAlerts()
 
   return (
-    <ProtectedRoute requiredRole="supervisor">
-      <div className="flex">
-        <Sidebar />
+    <div className="flex">
+      <Sidebar />
       <div className="flex-1 p-8 bg-gray-50 min-h-screen">
         {/* Dashboard Header */}
         <div className="mb-8">
@@ -165,8 +163,7 @@ const SupervisorDashboard = async () => {
           </div>
         </div>
       </div>
-      </div>
-    </ProtectedRoute>
+    </div>
   )
 }
 
