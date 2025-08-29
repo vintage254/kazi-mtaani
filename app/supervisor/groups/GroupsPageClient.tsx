@@ -30,6 +30,33 @@ interface GroupsPageClientProps {
 export default function GroupsPageClient({ groups, supervisors }: GroupsPageClientProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{id: number, name: string} | null>(null)
+
+  const handleDeleteGroup = (id: number, name: string) => {
+    setDeleteConfirm({ id, name })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return
+    
+    try {
+      const response = await fetch(`/api/groups/${deleteConfirm.id}`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        // Refresh the page to show updated data
+        window.location.reload()
+      } else {
+        alert('Failed to delete group')
+      }
+    } catch (error) {
+      console.error('Error deleting group:', error)
+      alert('Error deleting group')
+    }
+    
+    setDeleteConfirm(null)
+  }
 
   return (
     <>
@@ -165,9 +192,15 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
                     </Link>
                     <button 
                       onClick={() => setEditingGroup(group)}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-gray-600 hover:text-gray-900 mr-4"
                     >
                       Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteGroup(group.id, group.name)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -199,6 +232,32 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
           }}
           supervisors={supervisors}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Group</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete the group "{deleteConfirm.name}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )
