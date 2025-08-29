@@ -58,6 +58,7 @@ export default function GroupDetailClient({ group, workers, supervisors }: Group
 
   return (
     <>
+      <div className="flex-1 p-8 bg-gray-50 min-h-screen">
       {/* Breadcrumb */}
       <div className="mb-6">
         <nav className="flex text-sm text-gray-500">
@@ -252,6 +253,7 @@ export default function GroupDetailClient({ group, workers, supervisors }: Group
             </table>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Edit Group Modal */}

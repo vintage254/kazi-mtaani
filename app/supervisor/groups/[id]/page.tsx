@@ -12,7 +12,8 @@ interface GroupDetailProps {
 }
 
 const GroupDetail = async ({ params }: GroupDetailProps) => {
-  const groupId = parseInt(params.id)
+  const { id } = await params
+  const groupId = parseInt(id)
   
   const [group, workers, supervisors] = await Promise.all([
     getGroupById(groupId),

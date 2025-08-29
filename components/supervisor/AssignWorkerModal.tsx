@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { assignWorkerToGroup, getUnassignedWorkers } from '@/lib/db/actions'
+import { assignWorkerToGroup, getUnassignedWorkers, createMissingWorkerRecords, sendQRCodesToGroupWorkers } from '@/lib/db/actions'
 import { useRouter } from 'next/navigation'
 
 interface AssignWorkerModalProps {
@@ -37,6 +37,10 @@ export default function AssignWorkerModal({ isOpen, onClose, groupId, groupName 
   const loadUnassignedWorkers = async () => {
     setIsLoading(true)
     try {
+      // First, create missing worker records for users with worker role
+      await createMissingWorkerRecords()
+      
+      // Then get unassigned workers
       const workers = await getUnassignedWorkers()
       setUnassignedWorkers(workers)
     } catch (err) {
@@ -65,6 +69,13 @@ export default function AssignWorkerModal({ isOpen, onClose, groupId, groupName 
       await Promise.all(
         selectedWorkers.map(workerId => assignWorkerToGroup(workerId, groupId))
       )
+
+      // Send QR codes to all newly assigned workers
+      const emailResult = await sendQRCodesToGroupWorkers(groupId)
+      
+      if (emailResult.success > 0) {
+        console.log(`QR codes sent to ${emailResult.success}/${emailResult.total} workers`)
+      }
 
       setSelectedWorkers([])
       onClose()

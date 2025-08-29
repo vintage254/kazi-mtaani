@@ -33,26 +33,27 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Groups Management</h1>
-            <p className="text-gray-600 mt-2">Manage and monitor all work groups</p>
+      <div className="flex-1 p-8 bg-gray-50 min-h-screen">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Groups Management</h1>
+              <p className="text-gray-600 mt-2">Manage and monitor all work groups</p>
+            </div>
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Add New Group
+            </button>
           </div>
-          <button 
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Add New Group
-          </button>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center justify-between">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Groups</p>
               <p className="text-2xl font-bold text-gray-900">{groups.length}</p>
@@ -174,6 +175,7 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
             </tbody>
           </table>
         </div>
+      </div>
       </div>
 
       {/* Create Group Modal */}

@@ -48,10 +48,12 @@ export const attendance = pgTable('attendance', {
   id: serial('id').primaryKey(),
   workerId: integer('worker_id').references(() => workers.id),
   groupId: integer('group_id').references(() => groups.id),
+  date: text('date'), // YYYY-MM-DD format
   checkInTime: timestamp('check_in_time'),
   checkOutTime: timestamp('check_out_time'),
   status: attendanceStatusEnum('status').default('present'),
   location: text('location'),
+  scannerId: text('scanner_id'), // ID of the scanner machine used
   faceRecognitionScore: decimal('face_recognition_score', { precision: 5, scale: 2 }),
   supervisorApproved: boolean('supervisor_approved').default(false),
   notes: text('notes'),

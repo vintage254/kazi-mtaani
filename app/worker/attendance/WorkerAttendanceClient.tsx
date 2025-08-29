@@ -1,6 +1,8 @@
 'use client'
 
 import WorkerSidebar from '@/components/WorkerSidebar'
+import { useState, useEffect } from 'react'
+import { getWorkerQRCode } from '@/lib/db/actions'
 
 interface Worker {
   name: string
@@ -9,13 +11,95 @@ interface Worker {
   status: string
   group: string
   supervisor: string
+  workerId?: number
 }
 
 interface WorkerAttendanceClientProps {
   worker: Worker
 }
 
+interface QRCodeData {
+  qrCodeDataUrl: string
+  qrData: {
+    workerId: number
+    workerName: string
+    groupId: number | null
+    groupName: string | null
+    groupLocation: string | null
+    expirationDate: string
+    timestamp: string
+    securityHash: string
+  }
+}
+
 export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClientProps) {
+  const [qrCode, setQrCode] = useState<QRCodeData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showQRCode, setShowQRCode] = useState(false)
+
+  useEffect(() => {
+    const fetchQRCode = async () => {
+      if (worker.workerId) {
+        try {
+          const qrData = await getWorkerQRCode(worker.workerId)
+          setQrCode(qrData)
+        } catch (error) {
+          console.error('Error fetching QR code:', error)
+        }
+      }
+      setLoading(false)
+    }
+
+    fetchQRCode()
+  }, [worker.workerId])
+
+  const handleDownloadQR = () => {
+    if (qrCode) {
+      const link = document.createElement('a')
+      link.download = `${worker.name}-attendance-qr.png`
+      link.href = qrCode.qrCodeDataUrl
+      link.click()
+    }
+  }
+
+  const handlePrintQR = () => {
+    if (qrCode) {
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Attendance QR Code - ${worker.name}</title>
+              <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                .qr-container { margin: 20px 0; }
+                .worker-info { margin-bottom: 20px; }
+                h1 { color: #333; }
+                p { color: #666; margin: 5px 0; }
+                img { border: 2px solid #ddd; padding: 10px; }
+              </style>
+            </head>
+            <body>
+              <div class="worker-info">
+                <h1>Attendance QR Code</h1>
+                <p><strong>Worker:</strong> ${worker.name}</p>
+                <p><strong>Group:</strong> ${worker.group}</p>
+                <p><strong>Supervisor:</strong> ${worker.supervisor}</p>
+                <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+              </div>
+              <div class="qr-container">
+                <img src="${qrCode.qrCodeDataUrl}" alt="Attendance QR Code" />
+              </div>
+              <p><small>Present this QR code at your worksite for attendance scanning</small></p>
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        printWindow.print()
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -25,7 +109,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
       />
 
       {/* Main Content */}
-      <div className="ml-64 p-8 min-h-screen">
+      <div className="pl-64 p-8 min-h-screen">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -50,9 +134,63 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check In?</h2>
           <p className="text-gray-600 mb-6">Scan the QR code at your worksite to mark attendance</p>
           
-          <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
-            Scan QR Code
-          </button>
+          <div className="space-y-4">
+            <button 
+              onClick={() => setShowQRCode(!showQRCode)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+            >
+              {showQRCode ? 'Hide My QR Code' : 'Show My QR Code'}
+            </button>
+            
+            {qrCode && showQRCode && (
+              <div className="mt-6 p-6 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Attendance QR Code</h3>
+                <div className="flex flex-col items-center space-y-4">
+                  <img 
+                    src={qrCode.qrCodeDataUrl} 
+                    alt="Attendance QR Code" 
+                    className="border-2 border-gray-300 rounded-lg p-2 bg-white"
+                  />
+                  <div className="text-center text-sm text-gray-600">
+                    <p><strong>Worker:</strong> {qrCode.qrData.workerName}</p>
+                    <p><strong>Group:</strong> {qrCode.qrData.groupName || 'No Group'}</p>
+                    <p><strong>Location:</strong> {qrCode.qrData.groupLocation || 'Not Assigned'}</p>
+                    <p><strong>Valid Until:</strong> {new Date(qrCode.qrData.expirationDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleDownloadQR}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Download QR
+                    </button>
+                    <button
+                      onClick={handlePrintQR}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Print QR
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 text-center max-w-md">
+                    Present this QR code at your worksite scanner for attendance. 
+                    You can also save or print this code for offline use.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {loading && (
+              <div className="text-gray-500 text-sm">
+                Loading your QR code...
+              </div>
+            )}
+            
+            {!loading && !qrCode && (
+              <div className="text-red-500 text-sm">
+                Unable to generate QR code. Please contact your supervisor.
+              </div>
+            )}
+          </div>
           
           <div className="mt-6 text-sm text-gray-500">
             <p>Today: {new Date().toLocaleDateString('en-US', { 

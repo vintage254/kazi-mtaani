@@ -12,8 +12,8 @@ const Home = () => {
   const router = useRouter()
 
   useEffect(() => {
-    // Only redirect if user is authenticated and we haven't shown the landing page yet
-    if (isLoaded && user) {
+    // Only redirect if user is authenticated and we're on the home page
+    if (isLoaded && user && window.location.pathname === '/') {
       // Add a small delay to prevent immediate redirect loops
       const timer = setTimeout(async () => {
         try {
@@ -23,25 +23,25 @@ const Home = () => {
             // Redirect based on user role
             switch (dbUser.role) {
               case 'worker':
-                router.push('/worker/dashboard')
+                router.replace('/worker/dashboard')
                 break
               case 'supervisor':
-                router.push('/supervisor/dashboard')
+                router.replace('/supervisor/dashboard')
                 break
               case 'admin':
-                router.push('/admin/dashboard')
+                router.replace('/admin/dashboard')
                 break
               default:
-                router.push('/worker/dashboard')
+                router.replace('/worker/dashboard')
             }
           } else {
             // User exists in Clerk but not in database
-            router.push('/worker/dashboard')
+            router.replace('/worker/dashboard')
           }
         } catch (error) {
           console.error('Error checking user role:', error)
         }
-      }, 100)
+      }, 500)
 
       return () => clearTimeout(timer)
     }

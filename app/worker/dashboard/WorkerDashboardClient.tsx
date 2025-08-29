@@ -58,10 +58,6 @@ export default function WorkerDashboardClient({
     console.log('Edit profile clicked')
   }
 
-  const handleSignOut = () => {
-    console.log('Sign out clicked')
-  }
-
   const formatDate = (date: Date | null) => {
     if (!date) return 'N/A'
     return new Date(date).toLocaleDateString('en-US', {
@@ -116,7 +112,7 @@ export default function WorkerDashboardClient({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
       <WorkerSidebar 
         worker={worker}
@@ -124,34 +120,32 @@ export default function WorkerDashboardClient({
       />
 
       {/* Main Content */}
-      <div className="ml-64 p-8 min-h-screen">
+      <div className="ml-64 p-8 min-h-screen bg-gray-100 dark:bg-gray-900">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {worker.name}!</h1>
-              <p className="text-gray-600 mt-1">Here's what's happening with your work today.</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <select className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white">
-                <option>Last week</option>
-                <option>This week</option>
-                <option>This month</option>
-              </select>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>{worker.status}</span>
-              </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Days Worked</h3>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {worker.name}!</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Here's what's happening with your work today.</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 dark:text-white">
+              <option>Last week</option>
+              <option>This week</option>
+              <option>This month</option>
+            </select>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>{worker.status}</span>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border text-center hover:shadow-lg hover:shadow-gray-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.daysWorked}</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">DAYS</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">WORKED</div>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.daysWorked || 0}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">This month</p>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border text-center relative hover:shadow-lg hover:shadow-green-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
@@ -165,15 +159,13 @@ export default function WorkerDashboardClient({
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border text-center hover:shadow-lg hover:shadow-gray-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.attendanceRate}%</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">ATTENDANCE</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">RATE</div>
+            <p className="text-3xl font-bold text-blue-600">{stats?.attendanceRate || 0}%</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">This month</p>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border text-center hover:shadow-lg hover:shadow-gray-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.pendingPayments}</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">PAYMENT</div>
-            <div className="text-sm text-gray-600 uppercase tracking-wide">PENDING</div>
+            <p className="text-3xl font-bold text-orange-600">{stats?.pendingPayments || 0}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Awaiting approval</p>
           </div>
         </div>
 
@@ -182,7 +174,7 @@ export default function WorkerDashboardClient({
           {/* Attendance Chart */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Attendance by Day</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Attendance Rate</h3>
               <div className="flex items-center space-x-4 mt-2">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -224,31 +216,31 @@ export default function WorkerDashboardClient({
           </div>
 
           {/* Work Summary */}
-          <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Work Summary Last Week</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Hours Logged</h3>
             </div>
             <div className="p-6">
               <div className="text-center">
-                <div className="text-6xl font-bold text-green-500 mb-4">{stats.totalHours}</div>
-                <div className="text-sm text-gray-600 mb-4">TOTAL HOURS</div>
+                <p className="text-3xl font-bold text-green-600">{stats?.totalHours || 0}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total hours</p>
                 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Average daily hours</span>
-                    <span className="font-medium">{stats.daysWorked > 0 ? (stats.totalHours / stats.daysWorked).toFixed(1) : '0.0'} hrs</span>
+                    <span className="font-medium">{(stats.daysWorked || 0) > 0 ? ((stats.totalHours || 0) / (stats.daysWorked || 1)).toFixed(1) : '0.0'} hrs</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Days present</span>
-                    <span className="font-medium">{stats.daysWorked}</span>
+                    <span className="font-medium">{stats.daysWorked || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Days absent</span>
-                    <span className="font-medium">{Math.max(0, 5 - stats.daysWorked)}</span>
+                    <span className="font-medium">{Math.max(0, 5 - (stats.daysWorked || 0))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Attendance rate</span>
-                    <span className="font-medium">{stats.attendanceRate}%</span>
+                    <span className="font-medium">{stats.attendanceRate || 0}%</span>
                   </div>
                 </div>
 
@@ -272,7 +264,7 @@ export default function WorkerDashboardClient({
         {/* Payment History Table */}
         <div className="mt-8 bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Pending</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">

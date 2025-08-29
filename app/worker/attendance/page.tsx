@@ -27,7 +27,8 @@ export default async function WorkerAttendancePage() {
     handle: user.firstName?.toLowerCase() || 'worker',
     status: "Online",
     group: workerData?.groupName || 'No Group Assigned',
-    supervisor: workerData?.supervisorName || 'No Supervisor'
+    supervisor: workerData?.supervisorName || 'No Supervisor',
+    workerId: workerData?.id
   }
 
   return <WorkerAttendanceClient worker={worker} />
