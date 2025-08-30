@@ -271,7 +271,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     const pointerLeaveHandler = handlePointerLeave as EventListener;
     const deviceOrientationHandler = handleDeviceOrientation as EventListener;
 
-    const handleClick = () => {
+    const handleClick = (e: MouseEvent) => {
       if (!enableMobileTilt || location.protocol !== 'https:') return;
       if (typeof (window.DeviceMotionEvent as any).requestPermission === 'function') {
         (window.DeviceMotionEvent as any)
@@ -281,7 +281,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
               window.addEventListener('deviceorientation', deviceOrientationHandler);
             }
           })
-          .catch((err: any) => console.error(err));
+          .catch((err: unknown) => console.error(err));
       } else {
         window.addEventListener('deviceorientation', deviceOrientationHandler);
       }

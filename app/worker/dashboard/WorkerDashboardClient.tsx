@@ -286,7 +286,7 @@ export default function WorkerDashboardClient({
                         {formatDate(payment.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        You're all set for today!
+                        You&apos;re all set for today!
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {payment.period || 'N/A'}
@@ -361,7 +361,7 @@ export default function WorkerDashboardClient({
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          Today's attendance is pending approval
+                          Today&apos;s attendance is pending approval
                         </span>
                       </td>
                     </tr>
