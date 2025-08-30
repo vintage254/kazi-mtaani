@@ -13,9 +13,14 @@ function ensureDb() {
 }
 
 // Validate QR code data and security hash
-function validateQRCode(qrData: any): boolean {
+function validateQRCode(qrData: unknown): boolean {
   try {
-    const { workerId, groupId, securityHash, expirationDate } = qrData
+    const { workerId, groupId, securityHash, expirationDate } = qrData as {
+      workerId: number;
+      groupId: number;
+      securityHash: string;
+      expirationDate: string;
+    }
     
     // Check if QR code has expired
     if (new Date(expirationDate) < new Date()) {
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
     let parsedQRData
     try {
       parsedQRData = typeof qrData === 'string' ? JSON.parse(qrData) : qrData
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid QR code format' },
         { status: 400 }
@@ -159,7 +164,7 @@ export async function POST(request: NextRequest) {
       action: isCheckOut ? 'check-out' : 'check-in',
       worker: {
         id: workerData.id,
-        name: `${workerData.firstName} ${workerData.lastName}`,
+        name: workerName,
         group: workerData.groupName,
         location: workerData.groupLocation
       },
