@@ -426,7 +426,7 @@ const Prism: React.FC<PrismProps> = ({
       });
       io.observe(container);
       startRAF();
-      (container as any).__prismIO = io;
+      (container as HTMLElement & { __prismIO?: IntersectionObserver }).__prismIO = io;
     } else {
       startRAF();
     }
@@ -444,11 +444,9 @@ const Prism: React.FC<PrismProps> = ({
         window.removeEventListener("blur", onBlur);
       }
       if (suspendWhenOffscreen) {
-        const io = (container as any).__prismIO as
-          | IntersectionObserver
-          | undefined;
+        const io = (container as HTMLElement & { __prismIO?: IntersectionObserver }).__prismIO;
         if (io) io.disconnect();
-        delete (container as any).__prismIO;
+        delete (container as HTMLElement & { __prismIO?: IntersectionObserver }).__prismIO;
       }
       if (gl.canvas.parentElement === container)
         container.removeChild(gl.canvas);

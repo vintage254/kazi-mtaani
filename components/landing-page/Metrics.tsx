@@ -48,7 +48,7 @@ const Metrics = () => {
             Transforming <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Lives</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Real impact, measurable results. See how Kazi Mtaani is empowering Kenya's youth and transforming communities.
+            Real impact, measurable results. See how Kazi Mtaani is empowering Kenya&apos;s youth and transforming communities.
           </p>
         </motion.div>
 

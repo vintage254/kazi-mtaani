@@ -172,8 +172,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 text-center max-w-md">
-                    Present this QR code at your worksite scanner for attendance. 
-                    You can also save or print this code for offline use.
+                    You're currently checked in. Tap "Check Out" when you're done with work. You can also save or print this code for offline use.
                   </p>
                 </div>
               </div>

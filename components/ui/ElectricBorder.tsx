@@ -103,7 +103,7 @@ import React, {
       }
   
       requestAnimationFrame(() => {
-        [...dyAnims, ...dxAnims].forEach((a: any) => {
+        [...dyAnims, ...dxAnims].forEach((a: SVGAnimateElement) => {
           if (typeof a.beginElement === "function") {
             try {
               a.beginElement();

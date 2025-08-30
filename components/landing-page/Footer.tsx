@@ -38,8 +38,8 @@ const Footer = () => {
                 <span className="text-2xl font-bold">Kazi Mtaani</span>
               </div>
               
+              <p className="text-gray-400 mb-6">Empowering Kenya&apos;s youth through digital innovation and sustainable employment opportunities.</p> 
               <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
-                Empowering Kenya's youth through digital innovation and sustainable employment opportunities. 
                 Transforming communities one project at a time.
               </p>
               
@@ -117,17 +117,16 @@ const Footer = () => {
         <div className="border-t border-gray-800">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-gray-400 text-sm">
-                © 2024 Kazi Mtaani Digital Platform. All rights reserved.
-              </div>
-              
-              <div className="flex items-center space-x-6 text-sm text-gray-400">
-                <span className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>System Online</span>
-                </span>
-                <span>Made with ❤️ for Kenya's Youth</span>
-              </div>
+              <p className="text-gray-400 text-sm">We&apos;re here to help</p> 
+              <p className="text-gray-400 text-sm">            &copy; 2024 Kazi Mtaani Digital Platform. All rights reserved.</p>
+            </div>
+            
+            <div className="flex items-center space-x-6 text-sm text-gray-400">
+              <span className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>System Online</span>
+              </span>
+              <span>Made with ❤️ for Kenya&apos;s Youth</span>
             </div>
           </div>
         </div>

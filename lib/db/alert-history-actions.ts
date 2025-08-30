@@ -19,7 +19,7 @@ export async function getAlertHistory(filters?: {
   type?: string
   severity?: 'low' | 'medium' | 'high' | 'critical'
 }) {
-  let query = ensureDb()
+  const query = ensureDb()
     .select({
       id: alerts.id,
       type: alerts.type,

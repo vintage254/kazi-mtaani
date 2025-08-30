@@ -66,7 +66,7 @@ const SupervisorDashboard = async () => {
               </div>
             </div>
             <div className="mt-2">
-              <span className="text-gray-500 text-sm">Today's attendance</span>
+              <span className="text-gray-500 text-sm">Today&apos;s attendance</span>
             </div>
           </div>
 

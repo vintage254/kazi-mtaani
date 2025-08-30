@@ -39,7 +39,7 @@ const Gallery = () => {
             Program <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Gallery</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Witness the transformation happening across Kenya's communities through the Kazi Mtaani program
+            Witness the transformation happening across Kenya&apos;s communities through the Kazi Mtaani program
           </p>
         </motion.div>
 

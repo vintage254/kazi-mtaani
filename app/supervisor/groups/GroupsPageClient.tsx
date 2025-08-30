@@ -161,7 +161,7 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
                     <div className="text-sm font-medium text-gray-900">{group.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{group.location}</div>
+                    <p className="text-sm text-gray-600">No workers assigned. Click &quot;Assign Workers&quot; to add workers to this group.</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {group.workerCount || 0}
@@ -240,7 +240,7 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Group</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete the group "{deleteConfirm.name}"? This action cannot be undone.
+              Are you sure you want to delete the group &quot;{deleteConfirm.name}&quot;? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button

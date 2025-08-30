@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
 
-    let query = ensureDb()
+    const query = ensureDb()
       .select({
         id: attendance.id,
         workerId: attendance.workerId,
