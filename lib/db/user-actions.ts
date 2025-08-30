@@ -49,12 +49,12 @@ export async function createUser(userData: {
     .insert(users)
     .values({
       clerkId: userData.clerkId,
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
       role: userData.role || 'worker',
-      phone: userData.phone,
-      profileImage: userData.profileImage,
+      phone: userData.phone || null,
+      profileImage: userData.profileImage || null,
       isActive: true,
       createdAt: new Date()
     })
