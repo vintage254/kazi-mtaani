@@ -5,7 +5,11 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import Header from '@/components/landing-page/Header'
-import { getUserByClerkIdAction } from '@/lib/db/actions'
+import About from '@/components/landing-page/About'
+import Gallery from '@/components/landing-page/Gallery'
+import Metrics from '@/components/landing-page/Metrics'
+import Footer from '@/components/landing-page/Footer'
+import { getUserByClerkId } from '@/lib/db/user-actions'
 
 const Home = () => {
   const { user, isLoaded } = useUser()
@@ -17,7 +21,7 @@ const Home = () => {
       // Add a small delay to prevent immediate redirect loops
       const timer = setTimeout(async () => {
         try {
-          const dbUser = await getUserByClerkIdAction(user.id)
+          const dbUser = await getUserByClerkId(user.id)
           
           if (dbUser) {
             // Redirect based on user role
@@ -65,6 +69,10 @@ const Home = () => {
       <div className="min-h-screen">
         <Navbar />
         <Header />
+        <About />
+        <Gallery />
+        <Metrics />
+        <Footer />
       </div>
     )
   }
