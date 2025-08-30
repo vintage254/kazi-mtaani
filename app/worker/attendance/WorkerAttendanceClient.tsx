@@ -132,7 +132,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check In?</h2>
-          <p className="text-gray-600 mb-6">You haven&apos;t checked in today. Scan your QR code at the worksite to &quot;check in&quot;.</p>
+          <p className="text-gray-600 mb-6">You haven&apos;t checked in yet today. Don&apos;t forget to scan your QR code when you arrive at work!</p>
           
           <div className="space-y-4">
             <button 
@@ -162,7 +162,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
                       onClick={handleDownloadQR}
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
-                      You&apos;ve completed your work for today. Great job!
+                      Download QR
                     </button>
                     <button
                       onClick={handlePrintQR}
@@ -171,9 +171,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
                       Print QR
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 text-center max-w-md">
-                    You&apos;re currently checked in. Great job! Scan your QR code again to &quot;check out&quot; when you&apos;re done with work. You can also save or print this code for offline use.
-                  </p>
+                  <p className="text-sm text-gray-600">You&apos;re currently checked in. Remember to check out when you finish work.</p>
                 </div>
               </div>
             )}

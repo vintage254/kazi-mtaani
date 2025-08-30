@@ -152,7 +152,6 @@ export async function createPaymentFromAttendance(attendanceRecord: {
       workerId: attendanceRecord.workerId,
       groupId: attendanceRecord.groupId,
       amount: dailyRate,
-      period: attendanceRecord.date,
       status: 'pending',
       createdAt: new Date()
     })

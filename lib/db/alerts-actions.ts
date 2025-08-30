@@ -59,13 +59,8 @@ export async function getAllAlerts(filters?: {
 }
 
 export async function markAlertAsRead(alertId: number) {
-  const result = await ensureDb()
-    .update(alerts)
-    .set({
-      isRead: true
-    })
-    .where(eq(alerts.id, alertId))
-    .returning({
+  const updates = { isRead: true }
+  const result = await ensureDb().update(alerts).set(updates).where(eq(alerts.id, alertId)).returning({
       id: alerts.id,
       isRead: alerts.isRead
     })
@@ -183,14 +178,14 @@ export async function generatePaymentPendingAlerts() {
       lte(payments.period, threeDaysAgo)
     ))
 
-  const alertPromises = pendingPayments.map((payment: any) => 
+  const alertPromises = pendingPayments.map((payment: unknown) => 
     createAlert({
       type: 'payment_pending',
       title: 'Payment Overdue',
-      description: `Payment of KSh ${payment.amount} for ${payment.workerName} (${payment.groupName}) is pending for more than 3 days`,
+      description: `Payment of KSh ${(payment as any).amount} for ${(payment as any).workerName} (${(payment as any).groupName}) is pending for more than 3 days`,
       severity: 'medium',
-      workerId: payment.workerId || undefined,
-      groupId: payment.groupId || undefined
+      workerId: (payment as any).workerId || undefined,
+      groupId: (payment as any).groupId || undefined
     })
   )
 

@@ -61,6 +61,7 @@ export default function PaymentDashboard({
   const handleApprovePayment = async (paymentId: number) => {
     startTransition(async () => {
       try {
+        const exportData = records.map((payment: any) => ({ id: payment.id, amount: payment.amount, period: payment.period, status: payment.status, approvedAt: payment.approvedAt, disbursedAt: payment.disbursedAt, workerId: payment.workerId, workerName: payment.workerName, workerLastName: payment.workerLastName, groupId: payment.groupId, groupName: payment.groupName, userId: currentUser.id }))
         await approvePayment(paymentId, currentUser.id)
         setRecords(prev => prev.map(record => 
           record.id === paymentId 

@@ -223,7 +223,7 @@ export default function WorkerDashboardClient({
             <div className="p-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-green-600">{stats?.totalHours || 0}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total hours</p>
+                <p className="text-sm text-gray-600">You&apos;re doing great! Keep up the excellent work.</p>
                 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
