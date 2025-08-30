@@ -14,6 +14,7 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   phone: text('phone'),
+  profileImage: text('profile_image'),
   role: userRoleEnum('role').default('worker'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),

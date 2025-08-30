@@ -34,13 +34,20 @@ interface Supervisor {
   email: string | null
 }
 
+interface AttendanceStats {
+  attendanceRate: number
+  totalRecords: number
+  presentRecords: number
+}
+
 interface GroupDetailClientProps {
   group: Group
   workers: Worker[]
   supervisors: Supervisor[]
+  attendanceStats: AttendanceStats
 }
 
-export default function GroupDetailClient({ group, workers, supervisors }: GroupDetailClientProps) {
+export default function GroupDetailClient({ group, workers, supervisors, attendanceStats }: GroupDetailClientProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAssignWorkerModalOpen, setIsAssignWorkerModalOpen] = useState(false)
   const router = useRouter()
@@ -137,7 +144,7 @@ export default function GroupDetailClient({ group, workers, supervisors }: Group
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg Attendance</p>
-              <p className="text-2xl font-bold text-gray-900">85%</p>
+              <p className="text-2xl font-bold text-gray-900">{attendanceStats.attendanceRate}%</p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +225,7 @@ export default function GroupDetailClient({ group, workers, supervisors }: Group
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {worker.name} {worker.lastName}
+                            {worker.name && worker.lastName ? `${worker.name} ${worker.lastName}` : worker.name || worker.lastName || 'Unknown Worker'}
                           </div>
                           <div className="text-sm text-gray-500">{worker.phone}</div>
                         </div>

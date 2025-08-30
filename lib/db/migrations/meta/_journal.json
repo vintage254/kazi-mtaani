@@ -15,6 +15,20 @@
       "when": 1756199643633,
       "tag": "0001_add_user_is_active",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756558415337,
+      "tag": "0002_confused_microchip",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1756559611847,
+      "tag": "0003_nosy_mongu",
+      "breakpoints": true
     }
   ]
 }

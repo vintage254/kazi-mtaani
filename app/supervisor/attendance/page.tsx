@@ -1,9 +1,15 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getUserByClerkIdAction } from '@/lib/db/actions'
+import { getAttendanceRecords } from '@/lib/db/attendance-actions'
 import Sidebar from '@/components/supervisor/Sidebar'
+import AttendanceManagement from '@/components/supervisor/AttendanceManagement'
 
-export default async function SupervisorAttendancePage() {
+export default async function SupervisorAttendancePage({
+  searchParams
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const { userId } = await auth()
   
   if (!userId) {
@@ -16,6 +22,18 @@ export default async function SupervisorAttendancePage() {
     redirect('/unauthorized')
   }
 
+  // Parse search params for filters
+  const filters = {
+    groupId: searchParams.groupId ? parseInt(searchParams.groupId as string) : undefined,
+    workerId: searchParams.workerId ? parseInt(searchParams.workerId as string) : undefined,
+    dateFrom: searchParams.dateFrom as string,
+    dateTo: searchParams.dateTo as string,
+    status: searchParams.status as 'present' | 'absent' | 'late' | undefined,
+    approvalStatus: searchParams.approvalStatus === 'true' ? true : searchParams.approvalStatus === 'false' ? false : undefined
+  }
+
+  const attendanceRecords = await getAttendanceRecords(filters)
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -26,9 +44,11 @@ export default async function SupervisorAttendancePage() {
           <p className="text-gray-600 mt-2">Monitor and approve worker attendance</p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <p className="text-gray-600">Attendance management functionality will be implemented here.</p>
-        </div>
+        <AttendanceManagement 
+          initialRecords={attendanceRecords}
+          currentUser={user}
+          initialFilters={filters}
+        />
       </div>
     </div>
   )

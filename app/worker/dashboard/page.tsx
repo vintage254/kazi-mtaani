@@ -2,7 +2,7 @@ import React from 'react'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import WorkerDashboardClient from './WorkerDashboardClient'
-import { getUserByClerkIdAction, createUserAction } from '@/lib/db/actions'
+import { getUserByClerkId, createUser } from '@/lib/db/user-actions'
 import { getWorkerByUserId, getWorkerDashboardStats, getWorkerRecentActivity, getWorkerPaymentHistory } from '@/lib/db/worker-actions'
 
 const WorkerDashboard = async () => {
@@ -13,11 +13,11 @@ const WorkerDashboard = async () => {
   }
 
   // Get or create user data
-  let user = await getUserByClerkIdAction(userId)
+  let user = await getUserByClerkId(userId)
   if (!user) {
     // Auto-create user as worker if they don't exist
     try {
-      user = await createUserAction({
+      user = await createUser({
         clerkId: userId,
         email: '', // Will be populated from Clerk webhook
         firstName: '',

@@ -18,12 +18,13 @@ interface User {
   lastName?: string | null
   email: string
   phone?: string | null
+  profileImage?: string
 }
 
 interface WorkerData {
   id?: number
   position?: string | null
-  dailyRate?: number | null
+  dailyRate?: string | null
   joinedAt?: Date | null
   isActive?: boolean | null
   groupName?: string | null
@@ -89,11 +90,19 @@ export default function WorkerProfileClient({ worker, user, workerData }: Worker
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="text-center">
                 <div className="relative inline-block">
-                  <img 
-                    src={worker.avatar} 
-                    alt={worker.name}
-                    className="w-24 h-24 rounded-full mx-auto"
-                  />
+                  {user.profileImage ? (
+                    <img 
+                      src={user.profileImage} 
+                      alt={worker.name}
+                      className="w-24 h-24 rounded-full mx-auto object-cover"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full mx-auto bg-gray-300 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-gray-600">
+                        {(user.firstName?.[0] || user.email?.[0] || 'W').toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   {isEditing && (
                     <button className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-colors">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

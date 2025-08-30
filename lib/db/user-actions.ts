@@ -19,6 +19,7 @@ export async function getUserByClerkId(clerkId: string) {
       lastName: users.lastName,
       role: users.role,
       phone: users.phone,
+      profileImage: users.profileImage,
       isActive: users.isActive
     })
     .from(users)
@@ -36,6 +37,7 @@ export async function createUser(userData: {
   lastName?: string
   role?: 'worker' | 'supervisor' | 'admin'
   phone?: string
+  profileImage?: string | null
 }) {
   console.log('✨ Creating new user:', userData)
   
@@ -52,6 +54,7 @@ export async function createUser(userData: {
       lastName: userData.lastName,
       role: userData.role || 'worker',
       phone: userData.phone,
+      profileImage: userData.profileImage,
       isActive: true,
       createdAt: new Date()
     })
@@ -63,11 +66,45 @@ export async function createUser(userData: {
       lastName: users.lastName,
       role: users.role,
       phone: users.phone,
+      profileImage: users.profileImage,
       isActive: users.isActive
     })
 
   console.log('✅ User created successfully:', result[0])
   return result[0]
+}
+
+export async function updateUser(userId: number, userData: {
+  email?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  profileImage?: string | null
+  role?: 'worker' | 'supervisor' | 'admin'
+}) {
+  if (!db) {
+    throw new Error('Database not available on client side')
+  }
+  
+  const result = await db
+    .update(users)
+    .set({
+      ...userData,
+      updatedAt: new Date()
+    })
+    .where(eq(users.id, userId))
+    .returning({
+      id: users.id,
+      clerkId: users.clerkId,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      phone: users.phone,
+      profileImage: users.profileImage
+    })
+
+  return result[0] || null
 }
 
 export async function updateUserRole(clerkId: string, role: 'worker' | 'supervisor' | 'admin') {

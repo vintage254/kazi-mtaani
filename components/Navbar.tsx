@@ -13,13 +13,7 @@ const cn = (...classes: (string | undefined | null | boolean)[]) => {
   return classes.filter(Boolean).join(' ');
 };
 
-// Navigation links
-const navLinks = [
-  { id: 'home', name: 'Home', href: '#home' },
-  { id: 'features', name: 'Features', href: '#features' },
-  { id: 'about', name: 'About', href: '#about' },
-  { id: 'contact', name: 'Contact', href: '#contact' }
-];
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -110,19 +104,7 @@ const Navbar = () => {
           </a>
 
           {/* Desktop Navigation */}
-          <ul className="hidden md:flex space-x-8">
-            {navLinks.map((link, index) => (
-              <li key={link.id}>
-                <a
-                  href={link.href}
-                  className="nav-link relative text-white hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-600 hover:bg-clip-text transition-all duration-300 font-medium tracking-wide group"
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-            ))}
-          </ul>
+         
 
           {/* CTA Buttons - Desktop */}
           <div className="hidden md:flex items-center space-x-3">
@@ -180,17 +162,7 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="mobile-menu md:hidden mt-4 bg-black/95 backdrop-blur-lg rounded-lg border border-white/10 shadow-2xl">
             <ul className="py-4 space-y-2">
-              {navLinks.map((link, index) => (
-                <li key={link.id}>
-                  <a
-                    href={link.href}
-                    onClick={closeMenu}
-                    className="mobile-nav-link block px-6 py-3 text-white hover:bg-gradient-to-r hover:from-blue-900/20 hover:to-blue-800/20 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-600 transition-all duration-300 font-medium"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              
               <li className="px-6 py-2 space-y-2">
                 {isSignedIn ? (
                   <div className="flex items-center justify-center space-x-4 py-2">

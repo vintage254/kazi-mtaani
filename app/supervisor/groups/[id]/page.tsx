@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Sidebar from '@/components/supervisor/Sidebar'
 import { getGroupById, getWorkersByGroupId, getSupervisors } from '@/lib/db/actions'
+import { getGroupAttendanceStats } from '@/lib/db/attendance-actions'
 import { notFound } from 'next/navigation'
 import GroupDetailClient from './GroupDetailClient'
 
@@ -12,13 +13,14 @@ interface GroupDetailProps {
 }
 
 const GroupDetail = async ({ params }: GroupDetailProps) => {
-  const { id } = await params
+  const { id } = params
   const groupId = parseInt(id)
   
-  const [group, workers, supervisors] = await Promise.all([
+  const [group, workers, supervisors, attendanceStats] = await Promise.all([
     getGroupById(groupId),
     getWorkersByGroupId(groupId),
-    getSupervisors()
+    getSupervisors(),
+    getGroupAttendanceStats(groupId)
   ])
 
   if (!group) {
@@ -32,6 +34,7 @@ const GroupDetail = async ({ params }: GroupDetailProps) => {
         group={group} 
         workers={workers} 
         supervisors={supervisors}
+        attendanceStats={attendanceStats}
       />
     </div>
   )
