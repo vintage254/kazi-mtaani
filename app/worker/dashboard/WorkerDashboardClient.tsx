@@ -40,7 +40,9 @@ interface Payment {
   mpesaTransactionId: string | null
 }
 
-interface WorkerDashboardClientProps {}
+interface WorkerDashboardClientProps {
+  // Empty interface for future props
+}
 
 export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
   const [worker, setWorker] = useState<Worker | null>(null)
@@ -104,10 +106,12 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
 
   useEffect(() => {
     fetchWorkerData()
+    
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchWorkerData, 30000)
     return () => clearInterval(interval)
   }, [])
+
   if (loading || !worker) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -207,8 +211,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
       <div className="ml-64 p-8 min-h-screen bg-gray-100 dark:bg-gray-900">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Days Worked</h3>
+          <div className="mb-4">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {worker.name}!</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Here&apos;s what&apos;s happening with your work today.</p>
           </div>
@@ -228,6 +231,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border text-center hover:shadow-lg hover:shadow-gray-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Days Worked</h3>
             <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.daysWorked || 0}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">This month</p>
           </div>

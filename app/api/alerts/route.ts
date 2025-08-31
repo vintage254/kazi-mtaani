@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { alerts, groups, workers, users } from '@/lib/db/schema'
-import { eq, desc, isNull } from 'drizzle-orm'
+import { alerts, groups, users, workers } from '@/lib/db/schema'
+import { eq, desc, and } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs/server'
 
 export async function GET() {

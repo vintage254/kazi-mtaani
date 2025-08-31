@@ -52,7 +52,7 @@ export default function AttendanceManagement({
   const [selectedRecords, setSelectedRecords] = useState<number[]>([])
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+  // const router = useRouter() // Unused for now
 
   const fetchAttendanceRecords = async () => {
     try {

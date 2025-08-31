@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { attendanceIds, supervisorId } = body
+    const { attendanceIds } = body
 
     if (!Array.isArray(attendanceIds) || attendanceIds.length === 0) {
       return NextResponse.json(

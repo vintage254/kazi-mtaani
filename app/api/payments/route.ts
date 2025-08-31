@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { payments, workers, users, groups } from '@/lib/db/schema'
-import { eq, and, gte, lte, desc, count, sum } from 'drizzle-orm'
+import { eq, desc, and, gte, lte } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs/server'
 
 export async function GET(request: Request) {
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       )
     }
 
-    let baseQuery = db
+    const baseQuery = db
       .select({
         id: payments.id,
         amount: payments.amount,

@@ -57,7 +57,7 @@ export default function PaymentDashboard({
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+  // const router = useRouter() // Unused for now
 
   const fetchPaymentRecords = async () => {
     try {

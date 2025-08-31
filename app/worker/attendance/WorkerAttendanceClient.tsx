@@ -14,7 +14,9 @@ interface Worker {
   workerId?: number
 }
 
-interface WorkerAttendanceClientProps {}
+interface WorkerAttendanceClientProps {
+  // Empty interface for future props
+}
 
 interface QRCodeData {
   qrCodeDataUrl: string
