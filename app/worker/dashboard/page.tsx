@@ -32,6 +32,12 @@ const WorkerDashboard = async () => {
   }
   
   // If user has different role, redirect to appropriate dashboard
+  if (user.role === 'supervisor') {
+    redirect('/supervisor/dashboard')
+  }
+  if (user.role === 'admin') {
+    redirect('/supervisor/dashboard') // Admin uses supervisor dashboard for now
+  }
 
   // Get worker-specific data
   const workerData = await getWorkerByUserId(user.id)
