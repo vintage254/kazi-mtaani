@@ -7,7 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 interface AttendanceRecord {
   id: number
   date: string | null
-  status: 'present' | 'absent' | 'late'
+  status: 'present' | 'absent' | 'late' | null
   workerName: string | null
   workerLastName: string | null
   groupName: string | null
@@ -83,23 +83,27 @@ export default function ReportsAnalytics({
 
   // Worker performance analytics
   const workerStats = attendanceData.reduce((acc, record) => {
-    const workerName = `${record.workerName || ''} ${record.workerLastName || ''}`.trim()
-    if (!acc[workerName]) {
-      acc[workerName] = { present: 0, absent: 0, late: 0, total: 0 }
+    if (record.status) {
+      const workerName = `${record.workerName || ''} ${record.workerLastName || ''}`.trim()
+      if (!acc[workerName]) {
+        acc[workerName] = { present: 0, absent: 0, late: 0, total: 0 }
+      }
+      acc[workerName][record.status]++
+      acc[workerName].total++
     }
-    acc[workerName][record.status]++
-    acc[workerName].total++
     return acc
   }, {} as Record<string, { present: number; absent: number; late: number; total: number }>)
 
   // Group performance analytics
   const groupStats = attendanceData.reduce((acc, record) => {
-    const groupName = record.groupName || 'Unknown'
-    if (!acc[groupName]) {
-      acc[groupName] = { present: 0, absent: 0, late: 0, total: 0 }
+    if (record.status) {
+      const groupName = record.groupName || 'Unknown'
+      if (!acc[groupName]) {
+        acc[groupName] = { present: 0, absent: 0, late: 0, total: 0 }
+      }
+      acc[groupName][record.status]++
+      acc[groupName].total++
     }
-    acc[groupName][record.status]++
-    acc[groupName].total++
     return acc
   }, {} as Record<string, { present: number; absent: number; late: number; total: number }>)
 
