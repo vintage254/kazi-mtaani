@@ -17,11 +17,23 @@ interface Alert {
   resolvedAt?: Date | null
 }
 
-interface AlertsManagementProps {
-  initialAlerts: Alert[]
+interface User {
+  id: number
+  clerkId: string | null
+  email: string | null
+  firstName: string | null
+  lastName: string | null
+  role: string | null
+  phone: string | null
+  isActive: boolean | null
 }
 
-export default function AlertsManagement({ initialAlerts }: AlertsManagementProps) {
+interface AlertsManagementProps {
+  initialAlerts: Alert[]
+  currentUser: User
+}
+
+export default function AlertsManagement({ initialAlerts, currentUser }: AlertsManagementProps) {
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
   const [selectedAlerts, setSelectedAlerts] = useState<number[]>([])
   const [filters, setFilters] = useState({
@@ -78,41 +90,6 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
     return true
   })
 
-  const totalAlerts = filteredAlerts.length
-  const unreadAlerts = filteredAlerts.filter(alert => !alert.isRead).length
-  const resolvedAlerts = filteredAlerts.filter(alert => alert.resolvedAt).length
-
-  const handleBulkMarkAsRead = async () => {
-    if (selectedAlerts.length === 0) return
-    
-    startTransition(async () => {
-      try {
-        await bulkMarkAlertsAsRead(selectedAlerts)
-        setAlerts(prev => prev.map(alert => 
-          selectedAlerts.includes(alert.id) ? { ...alert, isRead: true } : alert
-        ))
-        setSelectedAlerts([])
-      } catch (error) {
-        console.error('Failed to mark alerts as read:', error)
-      }
-    })
-  }
-
-  const handleBulkResolve = async () => {
-    if (selectedAlerts.length === 0) return
-    
-    startTransition(async () => {
-      try {
-        await bulkResolveAlerts(selectedAlerts)
-        setAlerts(prev => prev.map(alert => 
-          selectedAlerts.includes(alert.id) ? { ...alert, resolvedAt: new Date() } : alert
-        ))
-        setSelectedAlerts([])
-      } catch (error) {
-        console.error('Failed to resolve alerts:', error)
-      }
-    })
-  }
 
   const getSeverityColor = (severity: string | null) => {
     switch (severity) {
