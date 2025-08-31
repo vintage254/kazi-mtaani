@@ -12,8 +12,7 @@ export default function OnboardingClient({ clerkId }: OnboardingClientProps) {
     username: '',
     firstName: '',
     lastName: '',
-    phone: '',
-    role: 'worker' as 'worker' | 'supervisor'
+    phone: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -60,7 +59,7 @@ export default function OnboardingClient({ clerkId }: OnboardingClientProps) {
           firstName: formData.firstName,
           lastName: formData.lastName,
           phone: formData.phone,
-          role: formData.role
+          role: 'worker'
         })
       })
 
@@ -70,12 +69,8 @@ export default function OnboardingClient({ clerkId }: OnboardingClientProps) {
         throw new Error(data.error || 'Failed to create account')
       }
 
-      // Redirect to appropriate dashboard
-      if (formData.role === 'supervisor') {
-        router.push('/supervisor/dashboard')
-      } else {
-        router.push('/worker/dashboard')
-      }
+      // Redirect to worker dashboard (all users start as workers)
+      router.push('/worker/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create account')
     } finally {
@@ -209,23 +204,6 @@ export default function OnboardingClient({ clerkId }: OnboardingClientProps) {
               />
             </div>
 
-            {/* Role */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Role *
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option value="worker">Worker</option>
-                <option value="supervisor">Supervisor</option>
-              </select>
-            </div>
           </div>
 
           <div>

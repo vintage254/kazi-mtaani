@@ -58,7 +58,8 @@ export async function createUser(userData: {
       phone: userData.phone || null,
       profileImage: userData.profileImage || null,
       isActive: true,
-      createdAt: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     })
     .returning({
       id: users.id,
