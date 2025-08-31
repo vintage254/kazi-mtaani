@@ -25,6 +25,13 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      )
+    }
+
     // Bulk approve attendance records
     for (const id of attendanceIds) {
       await db

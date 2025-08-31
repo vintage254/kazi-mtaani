@@ -23,6 +23,13 @@ export async function GET(request: Request) {
     const status = searchParams.get('status')
     const approvalStatus = searchParams.get('approvalStatus')
 
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      )
+    }
+
     let baseQuery = db
       .select({
         id: attendance.id,

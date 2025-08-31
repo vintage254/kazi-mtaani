@@ -29,6 +29,13 @@ export async function PATCH(
     const body = await request.json()
     const { action, supervisorId } = body
 
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      )
+    }
+
     if (action === 'approve') {
       await db
         .update(attendance)
@@ -78,6 +85,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Invalid attendance IDs' },
         { status: 400 }
+      )
+    }
+
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
       )
     }
 
