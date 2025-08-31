@@ -1,7 +1,8 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getUserByClerkId } from '@/lib/db/user-actions'
-import { getWorkerByUserId } from '@/lib/db/worker-actions'
+import { db } from '@/lib/db'
+import { users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import WorkerAttendanceClient from './WorkerAttendanceClient'
 
 export default async function WorkerAttendancePage() {
@@ -11,25 +12,26 @@ export default async function WorkerAttendancePage() {
     redirect('/sign-in')
   }
 
-  // Get user from database
-  const user = await getUserByClerkId(userId)
+  if (!db) {
+    redirect('/sign-in')
+  }
+
+  // Get user from database for role check
+  const user = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId)
+  })
+  
   if (!user) {
     redirect('/sign-in')
   }
 
-  // Get worker-specific data
-  const workerData = await getWorkerByUserId(user.id)
-  
-  // Create worker object for sidebar
-  const worker = {
-    name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Worker',
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    handle: user.firstName?.toLowerCase() || 'worker',
-    status: "Online",
-    group: workerData?.groupName || 'No Group Assigned',
-    supervisor: workerData?.supervisorName || 'No Supervisor',
-    workerId: workerData?.id
+  // Role-based redirects
+  if (user.role === 'supervisor') {
+    redirect('/supervisor/dashboard')
+  }
+  if (user.role === 'admin') {
+    redirect('/supervisor/dashboard')
   }
 
-  return <WorkerAttendanceClient worker={worker} />
+  return <WorkerAttendanceClient />
 }

@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { approveAttendanceRecord, bulkApproveAttendance } from '@/lib/db/attendance-actions'
 
 interface AttendanceRecord {
   id: number
@@ -40,31 +39,72 @@ interface Filters {
 }
 
 interface AttendanceManagementProps {
-  initialRecords: AttendanceRecord[]
   currentUser: User
   initialFilters: Filters
 }
 
 export default function AttendanceManagement({ 
-  initialRecords, 
   currentUser, 
   initialFilters 
 }: AttendanceManagementProps) {
-  const [records, setRecords] = useState(initialRecords)
+  const [records, setRecords] = useState<AttendanceRecord[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedRecords, setSelectedRecords] = useState<number[]>([])
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
+  const fetchAttendanceRecords = async () => {
+    try {
+      const params = new URLSearchParams()
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.set(key, value.toString())
+        }
+      })
+      
+      const response = await fetch(`/api/attendance?${params.toString()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setRecords(data.records || [])
+      }
+    } catch (error) {
+      console.error('Error fetching attendance records:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAttendanceRecords()
+  }, [filters])
+
   const handleApproveRecord = async (attendanceId: number) => {
     startTransition(async () => {
       try {
-        await approveAttendanceRecord(attendanceId, currentUser.id)
-        setRecords(prev => prev.map(record => 
-          record.id === attendanceId 
-            ? { ...record, supervisorApproved: true }
-            : record
-        ))
+        const response = await fetch(`/api/attendance/${attendanceId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ action: 'approve', supervisorId: currentUser.id })
+        })
+        
+        if (response.ok) {
+          setRecords(prev => prev.map(record => 
+            record.id === attendanceId 
+              ? { ...record, supervisorApproved: true }
+              : record
+          ))
+        }
       } catch (error) {
         console.error('Error approving attendance:', error)
       }
@@ -76,13 +116,23 @@ export default function AttendanceManagement({
     
     startTransition(async () => {
       try {
-        await bulkApproveAttendance(selectedRecords, currentUser.id)
-        setRecords(prev => prev.map(record => 
-          selectedRecords.includes(record.id)
-            ? { ...record, supervisorApproved: true }
-            : record
-        ))
-        setSelectedRecords([])
+        const response = await fetch('/api/attendance/bulk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ attendanceIds: selectedRecords, supervisorId: currentUser.id })
+        })
+        
+        if (response.ok) {
+          setRecords(prev => prev.map(record => 
+            selectedRecords.includes(record.id)
+              ? { ...record, supervisorApproved: true }
+              : record
+          ))
+          setSelectedRecords([])
+        }
       } catch (error) {
         console.error('Error bulk approving attendance:', error)
       }
@@ -92,16 +142,7 @@ export default function AttendanceManagement({
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     const updatedFilters = { ...filters, ...newFilters }
     setFilters(updatedFilters)
-    
-    // Build query params
-    const params = new URLSearchParams()
-    Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== '') {
-        params.set(key, value.toString())
-      }
-    })
-    
-    router.push(`/supervisor/attendance?${params.toString()}`)
+    setLoading(true)
   }
 
   const handleSelectRecord = (recordId: number) => {
@@ -148,6 +189,31 @@ export default function AttendanceManagement({
   const totalAmount = records
     .filter(r => r.supervisorApproved && r.status === 'present')
     .reduce((sum, r) => sum + parseFloat(r.dailyRate || '0'), 0)
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white p-4 rounded-lg shadow-sm border">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

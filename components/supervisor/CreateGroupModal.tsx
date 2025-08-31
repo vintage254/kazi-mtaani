@@ -8,9 +8,10 @@ import { useUser } from '@clerk/nextjs'
 interface CreateGroupModalProps {
   isOpen: boolean
   onClose: () => void
+  onGroupCreated?: () => void
 }
 
-export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalProps) {
+export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGroupModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -46,6 +47,13 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
         location: ''
       })
       onClose()
+      
+      // Trigger refresh callback to update groups list
+      if (onGroupCreated) {
+        onGroupCreated()
+      }
+      
+      // Also refresh router for good measure
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create group')

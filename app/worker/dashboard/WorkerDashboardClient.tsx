@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import WorkerSidebar from '@/components/WorkerSidebar'
 
 interface Worker {
@@ -40,22 +40,107 @@ interface Payment {
   mpesaTransactionId: string | null
 }
 
-interface WorkerDashboardClientProps {
-  worker: Worker
-  stats: Stats
-  recentActivity: Activity[]
-  paymentHistory: Payment[]
-}
+interface WorkerDashboardClientProps {}
 
-export default function WorkerDashboardClient({ 
-  worker, 
-  stats, 
-  recentActivity, 
-  paymentHistory 
-}: WorkerDashboardClientProps) {
-  // const handleEditProfile = () => {
-  //   // TODO: Implement profile editing
-  // }
+export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
+  const [worker, setWorker] = useState<Worker | null>(null)
+  const [stats, setStats] = useState<Stats>({
+    daysWorked: 0,
+    totalHours: 0,
+    attendanceRate: 0,
+    pendingPayments: 0
+  })
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [paymentHistory, setPaymentHistory] = useState<Payment[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchWorkerData = async () => {
+    try {
+      const [statsRes, activityRes, paymentsRes] = await Promise.all([
+        fetch('/api/worker/stats', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
+        fetch('/api/worker/activity', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
+        fetch('/api/worker/payments', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
+      ])
+      
+      if (statsRes.ok) {
+        const statsData = await statsRes.json()
+        setStats(statsData.stats || stats)
+        setWorker(statsData.worker || null)
+      }
+      
+      if (activityRes.ok) {
+        const activityData = await activityRes.json()
+        setRecentActivity(activityData.recentActivity || [])
+      }
+      
+      if (paymentsRes.ok) {
+        const paymentsData = await paymentsRes.json()
+        setPaymentHistory(paymentsData.paymentHistory || [])
+      }
+    } catch (error) {
+      console.error('Error fetching worker data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchWorkerData()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchWorkerData, 30000)
+    return () => clearInterval(interval)
+  }, [])
+  if (loading || !worker) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="ml-64 p-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border p-6">
+                <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <div className="h-64 bg-gray-200 rounded"></div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const formatDate = (date: Date | null) => {
     if (!date) return 'N/A'

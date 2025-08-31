@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getUserByClerkIdAction } from '@/lib/db/actions'
-import { getAttendanceRecords } from '@/lib/db/attendance-actions'
 import Sidebar from '@/components/supervisor/Sidebar'
 import AttendanceManagement from '@/components/supervisor/AttendanceManagement'
 
@@ -32,8 +31,6 @@ export default async function SupervisorAttendancePage({
     approvalStatus: searchParams.approvalStatus === 'true' ? true : searchParams.approvalStatus === 'false' ? false : undefined
   }
 
-  const attendanceRecords = await getAttendanceRecords(filters)
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -45,7 +42,6 @@ export default async function SupervisorAttendancePage({
         </div>
         
         <AttendanceManagement 
-          initialRecords={attendanceRecords}
           currentUser={user}
           initialFilters={filters}
         />

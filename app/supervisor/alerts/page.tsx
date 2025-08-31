@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getUserByClerkIdAction } from '@/lib/db/actions'
-import { getAllAlerts } from '@/lib/db/alerts-actions'
 import Sidebar from '@/components/supervisor/Sidebar'
 import AlertsManagement from '@/components/supervisor/AlertsManagement'
 
@@ -18,8 +17,6 @@ export default async function SupervisorAlertsPage() {
     redirect('/unauthorized')
   }
 
-  const activeAlerts = await getAllAlerts()
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -30,9 +27,7 @@ export default async function SupervisorAlertsPage() {
           <p className="text-gray-600 mt-2">Monitor system alerts and notifications</p>
         </div>
         
-        <AlertsManagement 
-          initialAlerts={activeAlerts}
-        />
+        <AlertsManagement />
       </div>
     </div>
   )

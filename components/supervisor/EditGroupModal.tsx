@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 interface EditGroupModalProps {
   isOpen: boolean
   onClose: () => void
+  onGroupUpdated?: () => void
   group: {
     id: number
     name: string
@@ -23,7 +24,7 @@ interface EditGroupModalProps {
   }>
 }
 
-export default function EditGroupModal({ isOpen, onClose, group, supervisors }: EditGroupModalProps) {
+export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group, supervisors }: EditGroupModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -67,6 +68,12 @@ export default function EditGroupModal({ isOpen, onClose, group, supervisors }: 
       })
 
       onClose()
+      
+      // Trigger refresh callback to update groups list
+      if (onGroupUpdated) {
+        onGroupUpdated()
+      }
+      
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update group')

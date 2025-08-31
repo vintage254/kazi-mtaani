@@ -246,9 +246,10 @@ export default function GroupsPageClient({ supervisors }: GroupsPageClientProps)
       </div>
 
       {/* Create Group Modal */}
-      <CreateGroupModal
-        isOpen={isCreateModalOpen}
+      <CreateGroupModal 
+        isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)}
+        onGroupCreated={fetchGroups}
       />
 
       {/* Edit Group Modal */}
@@ -256,6 +257,7 @@ export default function GroupsPageClient({ supervisors }: GroupsPageClientProps)
         <EditGroupModal
           isOpen={!!editingGroup}
           onClose={() => setEditingGroup(null)}
+          onGroupUpdated={fetchGroups}
           group={{
             id: editingGroup.id,
             name: editingGroup.name,

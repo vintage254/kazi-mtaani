@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { markAlertAsRead, resolveAlert, generateLowAttendanceAlerts, generatePaymentPendingAlerts, getAllAlerts } from '@/lib/db/alerts-actions'
+import { useState, useTransition, useEffect } from 'react'
 
 interface Alert {
   id: number
@@ -17,12 +16,9 @@ interface Alert {
 }
 
 
-interface AlertsManagementProps {
-  initialAlerts: Alert[]
-}
-
-export default function AlertsManagement({ initialAlerts }: AlertsManagementProps) {
-  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
+export default function AlertsManagement() {
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     severity: '',
     isRead: '',
@@ -30,13 +26,52 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
   })
   const [isPending, startTransition] = useTransition()
 
+  const fetchAlerts = async () => {
+    try {
+      const response = await fetch('/api/alerts', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setAlerts(data.alerts || [])
+      }
+    } catch (error) {
+      console.error('Error fetching alerts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAlerts()
+    
+    // Refresh alerts every 60 seconds
+    const interval = setInterval(fetchAlerts, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
   const handleMarkAsRead = async (alertId: number) => {
     startTransition(async () => {
       try {
-        await markAlertAsRead(alertId)
-        setAlerts(prev => prev.map(alert => 
-          alert.id === alertId ? { ...alert, isRead: true } : alert
-        ))
+        const response = await fetch(`/api/alerts/${alertId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ action: 'mark_read' })
+        })
+        
+        if (response.ok) {
+          setAlerts(prev => prev.map(alert => 
+            alert.id === alertId ? { ...alert, isRead: true } : alert
+          ))
+        }
       } catch (error) {
         console.error('Error marking alert as read:', error)
       }
@@ -46,10 +81,20 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
   const handleResolveAlert = async (alertId: number) => {
     startTransition(async () => {
       try {
-        await resolveAlert(alertId)
-        setAlerts(prev => prev.map(alert => 
-          alert.id === alertId ? { ...alert, isRead: true, resolvedAt: new Date() } : alert
-        ))
+        const response = await fetch(`/api/alerts/${alertId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ action: 'resolve' })
+        })
+        
+        if (response.ok) {
+          setAlerts(prev => prev.map(alert => 
+            alert.id === alertId ? { ...alert, isRead: true, resolvedAt: new Date() } : alert
+          ))
+        }
       } catch (error) {
         console.error('Error resolving alert:', error)
       }
@@ -59,11 +104,17 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
   const handleGenerateAlerts = async () => {
     startTransition(async () => {
       try {
-        await Promise.all([
-          generateLowAttendanceAlerts(),
-          generatePaymentPendingAlerts()
-        ])
-        setAlerts(await getAllAlerts())
+        const response = await fetch('/api/alerts/generate', {
+          method: 'POST',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        })
+        
+        if (response.ok) {
+          // Refresh alerts after generation
+          await fetchAlerts()
+        }
       } catch (error) {
         console.error('Error generating alerts:', error)
       }
@@ -110,6 +161,31 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
           </svg>
         )
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white p-4 rounded-lg shadow-sm border">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

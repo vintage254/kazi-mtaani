@@ -1,11 +1,12 @@
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
-import { getUserByClerkIdAction } from '@/lib/db/actions'
-import { getPaymentRecords, getPaymentStats } from '@/lib/db/attendance-actions'
 import Sidebar from '@/components/supervisor/Sidebar'
 import PaymentDashboard from '@/components/supervisor/PaymentDashboard'
+import { db } from '@/lib/db'
+import { users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
-export default async function SupervisorPaymentsPage({
+export default async function PaymentsPage({
   searchParams
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -16,43 +17,44 @@ export default async function SupervisorPaymentsPage({
     redirect('/sign-in')
   }
 
-  const user = await getUserByClerkIdAction(userId)
+  // Get current user
+  if (!db) {
+    redirect('/sign-in')
+  }
   
-  if (!user || user.role !== 'supervisor') {
-    redirect('/unauthorized')
+  const currentUser = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId)
+  })
+
+  if (!currentUser || currentUser.role !== 'supervisor') {
+    redirect('/')
   }
 
-  // Parse search params for filters
+  // Parse filters from search params
   const filters = {
     groupId: searchParams.groupId ? parseInt(searchParams.groupId as string) : undefined,
     workerId: searchParams.workerId ? parseInt(searchParams.workerId as string) : undefined,
     status: searchParams.status as 'pending' | 'approved' | 'disbursed' | 'failed' | undefined,
-    dateFrom: searchParams.dateFrom as string,
-    dateTo: searchParams.dateTo as string
+    dateFrom: searchParams.dateFrom as string | undefined,
+    dateTo: searchParams.dateTo as string | undefined
   }
 
-  const [paymentRecords, paymentStats] = await Promise.all([
-    getPaymentRecords(filters),
-    getPaymentStats()
-  ])
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      
-      <div className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Payment Management</h1>
-          <p className="text-gray-600 mt-2">Track and manage worker payments</p>
+      <main className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Payment Management</h1>
+            <p className="text-gray-600 mt-2">Manage worker payments and disbursements</p>
+          </div>
+          
+          <PaymentDashboard 
+            currentUser={currentUser}
+            initialFilters={filters}
+          />
         </div>
-        
-        <PaymentDashboard 
-          initialRecords={paymentRecords}
-          paymentStats={paymentStats}
-          currentUser={user}
-          initialFilters={filters}
-        />
-      </div>
+      </main>
     </div>
   )
 }

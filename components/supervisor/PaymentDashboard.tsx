@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { approvePayment, markPaymentAsDisbursed } from '@/lib/db/attendance-actions'
 
 interface PaymentRecord {
   id: number
@@ -41,33 +40,92 @@ interface Filters {
 }
 
 interface PaymentDashboardProps {
-  initialRecords: PaymentRecord[]
-  paymentStats: PaymentStats
   currentUser: User
   initialFilters: Filters
 }
 
 export default function PaymentDashboard({ 
-  initialRecords, 
-  paymentStats,
   currentUser, 
   initialFilters 
 }: PaymentDashboardProps) {
-  const [records, setRecords] = useState(initialRecords)
+  const [records, setRecords] = useState<PaymentRecord[]>([])
+  const [paymentStats, setPaymentStats] = useState<PaymentStats>({
+    pending: { count: 0, totalAmount: 0 },
+    approved: { count: 0, totalAmount: 0 },
+    disbursed: { count: 0, totalAmount: 0 }
+  })
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
+  const fetchPaymentRecords = async () => {
+    try {
+      const params = new URLSearchParams()
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.set(key, value.toString())
+        }
+      })
+      
+      const [recordsRes, statsRes] = await Promise.all([
+        fetch(`/api/payments?${params.toString()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
+        fetch('/api/payments/stats', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
+      ])
+      
+      if (recordsRes.ok) {
+        const recordsData = await recordsRes.json()
+        setRecords(recordsData.records || [])
+      }
+      
+      if (statsRes.ok) {
+        const statsData = await statsRes.json()
+        setPaymentStats(statsData)
+      }
+    } catch (error) {
+      console.error('Error fetching payment data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPaymentRecords()
+  }, [filters])
+
   const handleApprovePayment = async (paymentId: number) => {
     startTransition(async () => {
       try {
-        // const exportData = records.map((payment) => ({ id: payment.id, amount: payment.amount, period: payment.period, status: payment.status, approvedAt: payment.approvedAt, disbursedAt: payment.disbursedAt, workerId: payment.workerId, workerName: payment.workerName, workerLastName: payment.workerLastName, groupId: payment.groupId, groupName: payment.groupName, userId: currentUser.id }))
-        await approvePayment(paymentId, currentUser.id)
-        setRecords(prev => prev.map(record => 
-          record.id === paymentId 
-            ? { ...record, status: 'approved' as const, approvedAt: new Date() }
-            : record
-        ))
+        const response = await fetch(`/api/payments/${paymentId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ action: 'approve', supervisorId: currentUser.id })
+        })
+        
+        if (response.ok) {
+          setRecords(prev => prev.map(record => 
+            record.id === paymentId 
+              ? { ...record, status: 'approved' as const, approvedAt: new Date() }
+              : record
+          ))
+          // Refresh stats
+          await fetchPaymentRecords()
+        }
       } catch (error) {
         console.error('Error approving payment:', error)
       }
@@ -77,12 +135,24 @@ export default function PaymentDashboard({
   const handleMarkAsDisbursed = async (paymentId: number) => {
     startTransition(async () => {
       try {
-        await markPaymentAsDisbursed(paymentId)
-        setRecords(prev => prev.map(record => 
-          record.id === paymentId 
-            ? { ...record, status: 'disbursed' as const, disbursedAt: new Date() }
-            : record
-        ))
+        const response = await fetch(`/api/payments/${paymentId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: JSON.stringify({ action: 'disburse' })
+        })
+        
+        if (response.ok) {
+          setRecords(prev => prev.map(record => 
+            record.id === paymentId 
+              ? { ...record, status: 'disbursed' as const, disbursedAt: new Date() }
+              : record
+          ))
+          // Refresh stats
+          await fetchPaymentRecords()
+        }
       } catch (error) {
         console.error('Error marking payment as disbursed:', error)
       }
@@ -92,16 +162,7 @@ export default function PaymentDashboard({
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     const updatedFilters = { ...filters, ...newFilters }
     setFilters(updatedFilters)
-    
-    // Build query params
-    const params = new URLSearchParams()
-    Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== '') {
-        params.set(key, value.toString())
-      }
-    })
-    
-    router.push(`/supervisor/payments?${params.toString()}`)
+    setLoading(true)
   }
 
   const exportToCSV = () => {
@@ -125,6 +186,32 @@ export default function PaymentDashboard({
     a.download = `payment-records-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/3 mb-1"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

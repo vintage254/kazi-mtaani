@@ -2,7 +2,6 @@
 
 import WorkerSidebar from '@/components/WorkerSidebar'
 import { useState, useEffect } from 'react'
-import { getWorkerQRCode } from '@/lib/db/actions'
 import Image from 'next/image'
 
 interface Worker {
@@ -15,9 +14,7 @@ interface Worker {
   workerId?: number
 }
 
-interface WorkerAttendanceClientProps {
-  worker: Worker
-}
+interface WorkerAttendanceClientProps {}
 
 interface QRCodeData {
   qrCodeDataUrl: string
@@ -33,29 +30,58 @@ interface QRCodeData {
   }
 }
 
-export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClientProps) {
+export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) {
+  const [worker, setWorker] = useState<Worker | null>(null)
   const [qrCode, setQrCode] = useState<QRCodeData | null>(null)
   const [loading, setLoading] = useState(true)
   const [showQRCode, setShowQRCode] = useState(false)
 
-  useEffect(() => {
-    const fetchQRCode = async () => {
-      if (worker.workerId) {
-        try {
-          const qrData = await getWorkerQRCode(worker.workerId)
-          setQrCode(qrData)
-        } catch (error) {
-          console.error('Error fetching QR code:', error)
+  const fetchWorkerData = async () => {
+    try {
+      const response = await fetch('/api/worker/stats', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setWorker(data.worker)
+        
+        // Fetch QR code if worker has ID
+        if (data.worker?.workerId) {
+          try {
+            const qrResponse = await fetch(`/api/worker/qr/${data.worker.workerId}`, {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+              }
+            })
+            if (qrResponse.ok) {
+              const qrData = await qrResponse.json()
+              setQrCode(qrData)
+            }
+          } catch (error) {
+            console.error('Error fetching QR code:', error)
+          }
         }
       }
+    } catch (error) {
+      console.error('Error fetching worker data:', error)
+    } finally {
       setLoading(false)
     }
+  }
 
-    fetchQRCode()
-  }, [worker.workerId])
+  useEffect(() => {
+    fetchWorkerData()
+  }, [])
 
   const handleDownloadQR = () => {
-    if (qrCode) {
+    if (qrCode && worker) {
       const link = document.createElement('a')
       link.download = `${worker.name}-attendance-qr.png`
       link.href = qrCode.qrCodeDataUrl
@@ -64,7 +90,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
   }
 
   const handlePrintQR = () => {
-    if (qrCode) {
+    if (qrCode && worker) {
       const printWindow = window.open('', '_blank')
       if (printWindow) {
         printWindow.document.write(`
@@ -99,6 +125,24 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
         printWindow.print()
       }
     }
+  }
+
+  if (loading || !worker) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <div className="pl-64 p-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
+            <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
+              <div className="h-20 bg-gray-200 rounded-full w-20 mx-auto mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/2 mx-auto mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto mb-6"></div>
+              <div className="h-12 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
