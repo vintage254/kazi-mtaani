@@ -57,7 +57,7 @@ export default function GroupDetailClient({ group, workers, supervisors, attenda
       try {
         await removeWorkerFromGroup(workerId)
         router.refresh()
-      } catch (error) {
+      } catch {
         alert('Failed to remove worker from group')
       }
     }

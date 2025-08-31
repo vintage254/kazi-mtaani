@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import Sidebar from '@/components/supervisor/Sidebar'
 import { getGroupsWithStats, getSupervisors } from '@/lib/db/actions'
 import GroupsPageClient from './GroupsPageClient'

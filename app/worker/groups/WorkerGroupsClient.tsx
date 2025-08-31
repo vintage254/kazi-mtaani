@@ -1,6 +1,7 @@
 'use client'
 
 import WorkerSidebar from '@/components/WorkerSidebar'
+import Image from 'next/image'
 
 interface Worker {
   name: string
@@ -248,9 +249,11 @@ export default function WorkerGroupsClient({ worker, groupDetails, currentUserId
                         >
                           <div className="flex items-center space-x-3">
                             {isCurrentUser ? (
-                              <img 
+                              <Image 
                                 src={worker.avatar} 
                                 alt={memberName}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 rounded-full"
                               />
                             ) : (

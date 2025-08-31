@@ -33,7 +33,7 @@ function validateQRCode(qrData: unknown): boolean {
       .digest('hex')
     
     return securityHash === expectedHash
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -42,7 +42,7 @@ function validateQRCode(qrData: unknown): boolean {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { qrData, scannerId, scannerLocation, timestamp } = body
+    const { qrData, scannerId, scannerLocation } = body
 
     // Validate required fields
     if (!qrData || !scannerId) {

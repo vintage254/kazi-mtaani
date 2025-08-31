@@ -3,6 +3,7 @@
 import WorkerSidebar from '@/components/WorkerSidebar'
 import { useState, useEffect } from 'react'
 import { getWorkerQRCode } from '@/lib/db/actions'
+import Image from 'next/image'
 
 interface Worker {
   name: string
@@ -146,9 +147,11 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
               <div className="mt-6 p-6 bg-gray-50 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Attendance QR Code</h3>
                 <div className="flex flex-col items-center space-y-4">
-                  <img 
+                  <Image 
                     src={qrCode.qrCodeDataUrl} 
                     alt="Attendance QR Code" 
+                    width={200}
+                    height={200}
                     className="border-2 border-gray-300 rounded-lg p-2 bg-white"
                   />
                   <div className="text-center text-sm text-gray-600">

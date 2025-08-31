@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import WorkerSidebar from '@/components/WorkerSidebar'
+import Image from 'next/image'
 
 interface Worker {
   name: string
@@ -91,9 +92,11 @@ export default function WorkerProfileClient({ worker, user, workerData }: Worker
               <div className="text-center">
                 <div className="relative inline-block">
                   {user.profileImage ? (
-                    <img 
+                    <Image 
                       src={user.profileImage} 
                       alt={worker.name}
+                      width={96}
+                      height={96}
                       className="w-24 h-24 rounded-full mx-auto object-cover"
                     />
                   ) : (

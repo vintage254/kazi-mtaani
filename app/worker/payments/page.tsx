@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 
-const WorkerPayments = async () => {
+const WorkerPayments = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />

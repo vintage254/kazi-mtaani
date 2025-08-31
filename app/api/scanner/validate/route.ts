@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     let parsedQRData
     try {
       parsedQRData = typeof qrData === 'string' ? JSON.parse(qrData) : qrData
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid QR code format' },
         { status: 400 }

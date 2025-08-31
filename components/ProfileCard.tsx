@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useCallback, useMemo, useState } from "react";
-
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { gsap } from 'gsap';
+import Image from 'next/image';
 
 interface ProfileCardProps {
   avatarUrl: string;
@@ -271,7 +273,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     const pointerLeaveHandler = handlePointerLeave as EventListener;
     const deviceOrientationHandler = handleDeviceOrientation as EventListener;
 
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = () => {
       if (!enableMobileTilt || location.protocol !== 'https:') return;
       if (typeof (window.DeviceMotionEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function') {
         (window.DeviceMotionEvent as unknown as { requestPermission: () => Promise<string> })
@@ -367,10 +369,12 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                 cursor: isEditable ? 'pointer' : 'default'
               }}
             >
-              <img
+              <Image
                 className="avatar"
                 src={currentAvatar || DEFAULT_AVATAR}
                 alt={`${name || "User"} avatar`}
+                width={120}
+                height={120}
                 loading="lazy"
                 onError={handleAvatarError}
               />
@@ -395,9 +399,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
               <div className="pc-user-info">
                 <div className="pc-user-details">
                   <div className="pc-mini-avatar">
-                    <img
+                    <Image
                       src={miniAvatarUrl || avatarUrl}
                       alt={`${name || "User"} mini avatar`}
+                      width={32}
+                      height={32}
                       loading="lazy"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;

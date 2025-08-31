@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import Sidebar from '@/components/supervisor/Sidebar'
 import { getGroupById, getWorkersByGroupId, getSupervisors } from '@/lib/db/actions'
 import { getGroupAttendanceStats } from '@/lib/db/attendance-actions'

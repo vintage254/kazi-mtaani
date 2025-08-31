@@ -1,7 +1,6 @@
 'use client';
-import Image from 'next/image';
+// import Image from 'next/image';
 import React from 'react';
-import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useState } from 'react';
@@ -9,9 +8,9 @@ import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
 
 // Utility function (you'll need to add this to your utils)
-const cn = (...classes: (string | undefined | null | boolean)[]) => {
-  return classes.filter(Boolean).join(' ');
-};
+// const cn = (...classes: (string | undefined | null | boolean)[]) => {
+//   return classes.filter(Boolean).join(' ');
+// };
 
 
 
