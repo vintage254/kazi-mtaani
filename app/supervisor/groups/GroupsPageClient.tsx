@@ -29,12 +29,14 @@ interface GroupsPageClientProps {
 
 export default function GroupsPageClient({ supervisors }: GroupsPageClientProps) {
   const [groups, setGroups] = useState<Group[]>([])
+  const [loading, setLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{id: number, name: string} | null>(null)
 
   const fetchGroups = async () => {
     try {
+      setLoading(true)
       const response = await fetch('/api/groups', {
         cache: 'no-store',
         headers: {
@@ -54,7 +56,7 @@ export default function GroupsPageClient({ supervisors }: GroupsPageClientProps)
       console.error('Error fetching groups:', error)
       setGroups([])
     } finally {
-      // Loading state removed
+      setLoading(false)
     }
   }
 
@@ -185,7 +187,13 @@ export default function GroupsPageClient({ supervisors }: GroupsPageClientProps)
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {groups.map((group) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="text-sm font-medium text-gray-900">Loading groups...</div>
+                  </td>
+                </tr>
+              ) : groups.map((group) => (
                 <tr key={group.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{group.name}</div>

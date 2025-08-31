@@ -6,7 +6,7 @@ import { auth } from '@clerk/nextjs/server'
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -18,7 +18,8 @@ export async function PATCH(
       )
     }
 
-    const paymentId = parseInt(params.id)
+    const { id } = await params
+    const paymentId = parseInt(id)
     if (isNaN(paymentId)) {
       return NextResponse.json(
         { error: 'Invalid payment ID' },

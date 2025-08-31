@@ -83,7 +83,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
       
       if (statsRes.ok) {
         const statsData = await statsRes.json()
-        setStats(statsData.stats || stats)
+        setStats(statsData)
         setWorker(statsData.worker || null)
       }
       

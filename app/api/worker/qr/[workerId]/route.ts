@@ -4,7 +4,7 @@ import { getWorkerQRCode } from '@/lib/db/actions'
 
 export async function GET(
   request: Request,
-  { params }: { params: { workerId: string } }
+  { params }: { params: Promise<{ workerId: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -16,15 +16,16 @@ export async function GET(
       )
     }
 
-    const workerId = parseInt(params.workerId)
-    if (isNaN(workerId)) {
+    const { workerId } = await params
+    const workerIdNum = parseInt(workerId)
+    if (isNaN(workerIdNum)) {
       return NextResponse.json(
         { error: 'Invalid worker ID' },
         { status: 400 }
       )
     }
 
-    const qrData = await getWorkerQRCode(workerId)
+    const qrData = await getWorkerQRCode(workerIdNum)
 
     return NextResponse.json(
       qrData,
