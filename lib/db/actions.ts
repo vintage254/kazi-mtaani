@@ -69,17 +69,20 @@ export async function createUserAction(userData: {
     .insert(users)
     .values({
       clerkId: userData.clerkId,
+      username: `user_${Date.now()}`, // Temporary username until onboarding
       email: userData.email || null,
       firstName: userData.firstName || null,
       lastName: userData.lastName || null,
       role: userData.role || 'worker',
       phone: userData.phone || null,
       isActive: true,
-      createdAt: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     })
     .returning({
       id: users.id,
       clerkId: users.clerkId,
+      username: users.username,
       email: users.email,
       firstName: users.firstName,
       lastName: users.lastName,
