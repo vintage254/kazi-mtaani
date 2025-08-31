@@ -1,20 +1,15 @@
 "use client"
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { SignUpButton } from '@clerk/nextjs'
 import Prism from '@/components/ui/PrismBackground'
 import { ShimmerButton } from '@/components/ui/ShimmerButton'
 
 const Metrics = () => {
   return (
-    <motion.section 
+    <section 
       id="metrics" 
       className="py-20 bg-black relative overflow-hidden"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 1, ease: "easeOut" }}
-      viewport={{ once: true, margin: "-100px" }}
     >
       {/* Background Prism Effect */}
       <div className="absolute inset-0 opacity-30">
@@ -37,29 +32,17 @@ const Metrics = () => {
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Transforming <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Lives</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Real impact, measurable results. See how Kazi Mtaani is empowering Kenya&apos;s youth and transforming communities.
           </p>
-        </motion.div>
+        </div>
 
         {/* Main Metrics Grid */}
-        <motion.div 
-          className="grid lg:grid-cols-2 xl:grid-cols-4 gap-8 mb-16"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, staggerChildren: 0.1 }}
-          viewport={{ once: true }}
-        >
+        <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
           {/* Youth Empowered */}
           <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/20 backdrop-blur-lg rounded-2xl p-8 border border-blue-500/20 text-center group hover:scale-105 transition-transform duration-300">
             <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-500/30 transition-colors">
@@ -107,16 +90,10 @@ const Metrics = () => {
             <div className="text-yellow-300 font-medium mb-2">Income Generated</div>
             <div className="text-gray-400 text-sm">Direct payments to youth</div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Impact Stories Grid */}
-        <motion.div 
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, staggerChildren: 0.15 }}
-          viewport={{ once: true }}
-        >
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {/* Digital Innovation */}
           <div className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-lg rounded-xl p-6 border border-gray-700/50">
             <div className="flex items-center space-x-4 mb-4">
@@ -179,16 +156,10 @@ const Metrics = () => {
               </svg>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Call to Action */}
-        <motion.div 
-          className="text-center"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.7 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center">
           <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 backdrop-blur-lg rounded-2xl p-8 border border-blue-500/20">
             <h3 className="text-2xl font-bold text-white mb-4">Ready to Make a Difference?</h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
@@ -219,9 +190,9 @@ const Metrics = () => {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   )
 }
 

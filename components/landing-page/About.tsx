@@ -1,17 +1,12 @@
 "use client"
 import React from 'react'
-import { motion } from 'framer-motion'
 import ElectricBorder from '@/components/ui/ElectricBorder'
 
 const About = () => {
   return (
-    <motion.section 
+    <section 
       id="about" 
       className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ once: true, margin: "-100px" }}
     >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-black/20" />
@@ -20,29 +15,17 @@ const About = () => {
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Kazi Mtaani</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Empowering Kenya&apos;s youth through digital innovation and sustainable employment opportunities
           </p>
-        </motion.div>
+        </div>
 
         {/* Main Content Grid */}
-        <motion.div 
-          className="grid lg:grid-cols-2 gap-12 items-center mb-16"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
           {/* Left Content */}
           <div className="space-y-8">
             <div>
@@ -122,16 +105,10 @@ const About = () => {
               </div>
             </ElectricBorder>
           </div>
-        </motion.div>
+        </div>
 
         {/* Impact Cards */}
-        <motion.div 
-          className="grid md:grid-cols-3 gap-8"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, staggerChildren: 0.1 }}
-          viewport={{ once: true }}
-        >
+        <div className="grid md:grid-cols-3 gap-8">
           <ElectricBorder 
             color="#10B981" 
             speed={0.8} 
@@ -185,9 +162,9 @@ const About = () => {
               Income generation and access to government affirmative funds for youth
             </p>
           </ElectricBorder>
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   )
 }
 

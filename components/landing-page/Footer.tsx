@@ -1,30 +1,17 @@
 "use client"
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 
 const Footer = () => {
   return (
-    <motion.footer 
-      className="bg-black text-white relative overflow-hidden"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ once: true, margin: "-50px" }}
-    >
+    <footer className="bg-black text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
       
       <div className="relative z-10">
         {/* Main Footer Content */}
-        <motion.div 
-          className="max-w-7xl mx-auto px-6 lg:px-8 py-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
           <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
             
             {/* Brand Section */}
@@ -111,7 +98,7 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-        </motion.div>
+        </div>
         
         {/* Bottom Bar */}
         <div className="border-t border-gray-800">
@@ -136,7 +123,7 @@ const Footer = () => {
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
       <div className="absolute top-1/2 right-0 w-px h-32 bg-gradient-to-b from-transparent via-blue-500/30 to-transparent"></div>
       <div className="absolute top-1/2 left-0 w-px h-32 bg-gradient-to-b from-transparent via-purple-500/30 to-transparent"></div>
-    </motion.footer>
+    </footer>
   )
 }
 
