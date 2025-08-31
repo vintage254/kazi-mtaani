@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 interface AttendanceRecord {
   id: number
-  date: string
+  date: string | null
   status: 'present' | 'absent' | 'late'
   workerName: string | null
   workerLastName: string | null
