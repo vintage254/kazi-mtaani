@@ -18,11 +18,11 @@ interface AttendanceRecord {
 interface PaymentRecord {
   id: number
   amount: string
-  period: string
-  status: 'pending' | 'approved' | 'disbursed' | 'failed'
+  period: string | null
+  status: 'pending' | 'approved' | 'disbursed' | 'failed' | null
   workerName: string | null
   workerLastName: string | null
-  groupName: string | null
+  groupName: string
 }
 
 interface User {
@@ -201,11 +201,11 @@ export default function ReportsAnalytics({
       ['DETAILED RECORDS'],
       ['Date', 'Worker', 'Group', 'Amount', 'Status'],
       ...paymentData.map(record => [
-        record.period,
+        record.period || 'N/A',
         `${record.workerName || ''} ${record.workerLastName || ''}`.trim(),
         record.groupName || '',
         `KSh ${record.amount}`,
-        record.status
+        record.status || 'unknown'
       ])
     ].map(row => Array.isArray(row) ? row.join(',') : row).join('\n')
 

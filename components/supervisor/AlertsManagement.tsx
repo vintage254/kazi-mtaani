@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { markAlertAsRead, resolveAlert, generateLowAttendanceAlerts, generatePaymentPendingAlerts, getAllAlerts } from '@/lib/db/alerts-actions'
-import { bulkMarkAlertsAsRead, bulkResolveAlerts } from '@/lib/db/alert-history-actions'
 
 interface Alert {
   id: number
@@ -30,12 +29,10 @@ interface User {
 
 interface AlertsManagementProps {
   initialAlerts: Alert[]
-  currentUser: User
 }
 
-export default function AlertsManagement({ initialAlerts, currentUser }: AlertsManagementProps) {
+export default function AlertsManagement({ initialAlerts }: AlertsManagementProps) {
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
-  const [selectedAlerts, setSelectedAlerts] = useState<number[]>([])
   const [filters, setFilters] = useState({
     severity: '',
     isRead: '',

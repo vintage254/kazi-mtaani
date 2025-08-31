@@ -32,7 +32,6 @@ export default async function SupervisorAlertsPage() {
         
         <AlertsManagement 
           initialAlerts={activeAlerts}
-          currentUser={user}
         />
       </div>
     </div>
