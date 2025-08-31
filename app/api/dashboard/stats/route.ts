@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { groups, workers, attendance } from '@/lib/db/schema'
 import { eq, count, and, gte } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs/server'
+import { createMissingWorkerRecords } from '@/lib/db/actions'
 
 export async function GET() {
   try {
@@ -22,9 +23,12 @@ export async function GET() {
       )
     }
 
-    // Get stats
+    // Ensure worker records exist for all users with worker role
+    await createMissingWorkerRecords()
+
+    // Get stats - count all workers, not just active ones
     const [totalWorkersResult, activeGroupsResult] = await Promise.all([
-      db.select({ count: count() }).from(workers).where(eq(workers.isActive, true)),
+      db.select({ count: count() }).from(workers),
       db.select({ count: count() }).from(groups).where(eq(groups.status, 'active'))
     ])
 
