@@ -4,7 +4,19 @@ import { auth } from '@clerk/nextjs/server'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Onboarding API called')
+    
+    // Check database connection first
+    if (!process.env.DATABASE_URL) {
+      console.error('❌ DATABASE_URL not configured')
+      return NextResponse.json(
+        { error: 'Database configuration missing' },
+        { status: 500 }
+      )
+    }
+
     const { userId } = await auth()
+    console.log('👤 User ID from auth:', userId)
     
     if (!userId) {
       return NextResponse.json(
@@ -13,7 +25,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    let body
+    try {
+      const rawBody = await request.text()
+      console.log('📝 Raw request body:', rawBody)
+      
+      if (!rawBody || rawBody.trim() === '') {
+        throw new Error('Request body is empty')
+      }
+      
+      body = JSON.parse(rawBody)
+      console.log('📝 Parsed request body:', body)
+    } catch (parseError) {
+      console.error('❌ JSON parsing error:', parseError)
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+    
     const { username, firstName, lastName, phone, role } = body
 
     // Validate required fields
@@ -32,6 +62,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('✅ Validation passed, creating user...')
+    
     // Create user with username
     const user = await createUserWithUsername({
       clerkId: userId,
@@ -41,6 +73,8 @@ export async function POST(request: NextRequest) {
       phone,
       role
     })
+
+    console.log('✅ User created successfully:', user)
 
     return NextResponse.json({
       success: true,
@@ -54,12 +88,19 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating user with username:', error)
+    console.error('❌ Error in onboarding API:', error)
     
     if (error instanceof Error && error.message === 'Username is already taken') {
       return NextResponse.json(
         { error: 'Username is already taken' },
         { status: 409 }
+      )
+    }
+
+    if (error instanceof Error && error.message.includes('Database not available')) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
       )
     }
 

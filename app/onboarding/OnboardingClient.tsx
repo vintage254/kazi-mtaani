@@ -24,13 +24,38 @@ export default function OnboardingClient({ }: OnboardingClientProps) {
     const username = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')
     setFormData(prev => ({ ...prev, username }))
     
-    if (username.length >= 3) {
+    if (username.length >= 3 && username.length <= 20) {
       setUsernameStatus('checking')
       try {
-        const response = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+        
+        const response = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`, {
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          const text = await response.text()
+          console.error('Username check failed:', response.status, text)
+          throw new Error(`HTTP ${response.status}: ${text}`)
+        }
+        
+        const contentType = response.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+          const text = await response.text()
+          console.error('Non-JSON response received:', text)
+          throw new Error('Server returned HTML instead of JSON')
+        }
+        
         const data = await response.json()
+        console.log('Username check response:', data)
         setUsernameStatus(data.available ? 'available' : 'taken')
-      } catch {
+      } catch (error) {
+        console.error('Username check error:', error)
+        if (error instanceof Error && error.name === 'AbortError') {
+          setError('Username check timed out. Please try again.')
+        }
         setUsernameStatus(null)
       }
     } else {
@@ -46,43 +71,87 @@ export default function OnboardingClient({ }: OnboardingClientProps) {
     setIsSubmitting(true)
     setError('')
 
-    if (usernameStatus !== 'available') {
-      console.log('❌ Username not available:', usernameStatus)
+    // Validate required fields
+    if (!formData.username || !formData.firstName || !formData.lastName) {
+      setError('Please fill in all required fields')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (formData.username.length < 3) {
+      setError('Username must be at least 3 characters long')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (usernameStatus === 'taken') {
       setError('Please choose an available username')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (usernameStatus === 'checking') {
+      setError('Please wait for username validation to complete')
       setIsSubmitting(false)
       return
     }
 
     try {
       console.log('📤 Sending request to /api/onboarding')
+      
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+      
+      const requestBody = {
+        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        role: 'worker'
+      }
+      
+      console.log('📤 Request body being sent:', requestBody)
+      const jsonBody = JSON.stringify(requestBody)
+      console.log('📤 Stringified JSON:', jsonBody)
+      
       const response = await fetch('/api/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.username,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          role: 'worker'
-        })
+        body: jsonBody,
+        signal: controller.signal
       })
-
+      
+      clearTimeout(timeoutId)
       console.log('📥 Response status:', response.status)
-      const data = await response.json()
-      console.log('📥 Response data:', data)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account')
+        const text = await response.text()
+        console.error('Onboarding failed:', response.status, text)
+        throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`)
       }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType?.includes('application/json')) {
+        const text = await response.text()
+        console.error('Non-JSON response received:', text.substring(0, 500))
+        throw new Error('Server returned HTML instead of JSON. Check server logs.')
+      }
+
+      const data = await response.json()
+      console.log('📥 Response data:', data)
 
       console.log('✅ Account created successfully, redirecting...')
       // Redirect to worker dashboard (all users start as workers)
       router.push('/worker/dashboard')
     } catch (err) {
       console.error('❌ Error during submission:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create account')
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Request timed out. The server is taking too long to respond.')
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to create account')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -219,7 +288,15 @@ export default function OnboardingClient({ }: OnboardingClientProps) {
           <div>
             <ShinyButton
               type="submit"
-              disabled={isSubmitting || usernameStatus !== 'available'}
+              disabled={
+                isSubmitting || 
+                !formData.username || 
+                !formData.firstName || 
+                !formData.lastName ||
+                formData.username.length < 3 ||
+                usernameStatus === 'taken' ||
+                usernameStatus === 'checking'
+              }
               className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Creating Account...' : 'Complete Setup'}

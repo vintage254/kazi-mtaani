@@ -9,7 +9,16 @@ const isPublicRoute = createRouteMatcher([
   '/onboarding'
 ])
 
+const isApiRoute = createRouteMatcher([
+  '/api(.*)'
+])
+
 export default clerkMiddleware(async (auth, request) => {
+  // Skip middleware logic for API routes - let them handle auth themselves
+  if (isApiRoute(request)) {
+    return NextResponse.next()
+  }
+
   if (isPublicRoute(request)) {
     return NextResponse.next()
   }
