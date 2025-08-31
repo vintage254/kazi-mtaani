@@ -13,8 +13,8 @@ const OnboardingPage = async () => {
 
   // Check if user already exists and has completed onboarding
   const existingUser = await getUserByClerkId(userId)
-  if (existingUser && existingUser.username) {
-    // User already has username, redirect to appropriate dashboard
+  if (existingUser && existingUser.username && !existingUser.username.startsWith('user_')) {
+    // User already has proper username, redirect to appropriate dashboard
     if (existingUser.role === 'supervisor') {
       redirect('/supervisor/dashboard')
     } else {

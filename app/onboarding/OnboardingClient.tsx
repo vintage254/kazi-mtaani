@@ -8,7 +8,7 @@ interface OnboardingClientProps {
   clerkId: string
 }
 
-export default function OnboardingClient({ }: OnboardingClientProps) {
+export default function OnboardingClient({ clerkId }: OnboardingClientProps) {
   const [formData, setFormData] = useState({
     username: '',
     firstName: '',
