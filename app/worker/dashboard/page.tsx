@@ -55,7 +55,9 @@ const WorkerDashboard = async () => {
     handle: user.firstName?.toLowerCase() || 'worker',
     status: workerData?.isActive ? "Online" : "Offline",
     group: workerData?.groupName || 'No Group Assigned',
-    supervisor: workerData?.supervisorName || 'No Supervisor'
+    supervisor: workerData?.supervisorName && workerData?.supervisorLastName 
+      ? `${workerData.supervisorName} ${workerData.supervisorLastName}` 
+      : workerData?.supervisorName || 'No Supervisor'
   }
 
   // Get actual stats from database

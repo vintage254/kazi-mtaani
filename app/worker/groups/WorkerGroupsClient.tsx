@@ -307,69 +307,7 @@ export default function WorkerGroupsClient({ worker, groupDetails, currentUserId
         </div>
 
         {/* Weekly Performance */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border">
-          <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">This Week&apos;s Performance</h3>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-4">Group Attendance</h4>
-                <div className="space-y-3">
-                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day, index) => {
-                    const attendance = [93, 100, 87, 80, 0][index]
-                    const present = [14, 15, 13, 12, 0][index]
-                    const total = 15
-                    
-                    return (
-                      <div key={day} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">{day}</span>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full ${attendance > 0 ? 'bg-green-500' : 'bg-gray-300'}`}
-                              style={{width: `${attendance}%`}}
-                            ></div>
-                          </div>
-                          <span className={`text-sm ${attendance > 0 ? 'text-gray-900' : 'text-gray-500'}`}>
-                            {attendance > 0 ? `${present}/${total}` : 'Today'}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-4">Top Performers</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-yellow-500">🥇</span>
-                      <span className="text-sm text-gray-900">Mary Smith</span>
-                    </div>
-                    <span className="text-sm font-medium text-green-600">98%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-400">🥈</span>
-                      <span className="text-sm text-gray-900">{worker.name}</span>
-                    </div>
-                    <span className="text-sm font-medium text-green-600">95%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-orange-500">🥉</span>
-                      <span className="text-sm text-gray-900">Peter Johnson</span>
-                    </div>
-                    <span className="text-sm font-medium text-green-600">92%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Performance stats removed - will be implemented with real data later */}
       </div>
     </div>
   )

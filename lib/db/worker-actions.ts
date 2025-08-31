@@ -25,7 +25,8 @@ export async function getWorkerByUserId(userId: number) {
       isActive: workers.isActive,
       groupName: groups.name,
       groupLocation: groups.location,
-      supervisorName: users.firstName
+      supervisorName: users.firstName,
+      supervisorLastName: users.lastName
     })
     .from(workers)
     .leftJoin(groups, eq(workers.groupId, groups.id))
@@ -169,6 +170,7 @@ export async function getWorkerGroupDetails(workerId: number) {
       groupDescription: groups.description,
       groupStatus: groups.status,
       supervisorName: users.firstName,
+      supervisorLastName: users.lastName,
       supervisorId: groups.supervisorId,
       createdAt: groups.createdAt
     })

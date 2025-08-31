@@ -10,6 +10,7 @@ export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'approved'
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   clerkId: text('clerk_id').unique(),
+  username: text('username').unique().notNull(),
   email: text('email').unique(),
   firstName: text('first_name'),
   lastName: text('last_name'),

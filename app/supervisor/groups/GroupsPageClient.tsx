@@ -11,6 +11,7 @@ interface Group {
   location: string
   status: string | null
   supervisorName: string | null
+  supervisorLastName: string | null
   workerCount: number
   updatedAt: Date | null
 }
@@ -167,7 +168,9 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
                     {group.workerCount || 0}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {group.supervisorName || 'Unassigned'}
+                    {group.supervisorName && group.supervisorLastName 
+                      ? `${group.supervisorName} ${group.supervisorLastName}` 
+                      : group.supervisorName || 'Unassigned'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

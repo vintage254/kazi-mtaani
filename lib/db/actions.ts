@@ -122,6 +122,7 @@ export async function getGroupById(id: number) {
       createdAt: groups.createdAt,
       supervisorId: groups.supervisorId,
       supervisorName: users.firstName,
+      supervisorLastName: users.lastName,
     })
     .from(groups)
     .leftJoin(users, eq(groups.supervisorId, users.id))
@@ -141,13 +142,14 @@ export async function getGroupsWithStats() {
       location: groups.location,
       status: groups.status,
       supervisorName: users.firstName,
+      supervisorLastName: users.lastName,
       workerCount: count(workers.id),
       updatedAt: groups.updatedAt,
     })
     .from(groups)
     .leftJoin(users, eq(groups.supervisorId, users.id))
     .leftJoin(workers, eq(groups.id, workers.groupId))
-    .groupBy(groups.id, groups.name, groups.location, groups.status, users.firstName, groups.updatedAt)
+    .groupBy(groups.id, groups.name, groups.location, groups.status, users.firstName, users.lastName, groups.updatedAt)
 }
 
 export async function getWorkersByGroupId(groupId: number) {

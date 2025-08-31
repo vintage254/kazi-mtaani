@@ -15,6 +15,7 @@ interface Group {
   status: string | null
   createdAt: Date | null
   supervisorName: string | null
+  supervisorLastName: string | null
 }
 
 interface Worker {
@@ -183,7 +184,11 @@ export default function GroupDetailClient({ group, workers, supervisors, attenda
             </div>
             <div>
               <label className="text-sm font-medium text-gray-600">Supervisor</label>
-              <p className="text-gray-900">{group.supervisorName || 'Unassigned'}</p>
+              <p className="text-gray-900">
+                {group.supervisorName && group.supervisorLastName 
+                  ? `${group.supervisorName} ${group.supervisorLastName}` 
+                  : group.supervisorName || 'Unassigned'}
+              </p>
             </div>
           </div>
         </div>
