@@ -16,16 +16,6 @@ interface Alert {
   resolvedAt?: Date | null
 }
 
-interface User {
-  id: number
-  clerkId: string | null
-  email: string | null
-  firstName: string | null
-  lastName: string | null
-  role: string | null
-  phone: string | null
-  isActive: boolean | null
-}
 
 interface AlertsManagementProps {
   initialAlerts: Alert[]
