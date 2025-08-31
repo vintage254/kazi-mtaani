@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const baseQuery = db
+    let baseQuery = db
       .select({
         id: attendance.id,
         date: attendance.date,

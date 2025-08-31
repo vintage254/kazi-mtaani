@@ -40,9 +40,8 @@ interface Payment {
   mpesaTransactionId: string | null
 }
 
-interface WorkerDashboardClientProps {
-  // Empty interface for future props
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface WorkerDashboardClientProps {}
 
 export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
   const [worker, setWorker] = useState<Worker | null>(null)
@@ -110,7 +109,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchWorkerData, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchWorkerData])
 
   if (loading || !worker) {
     return (

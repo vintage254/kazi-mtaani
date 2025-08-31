@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const baseQuery = db
+    let baseQuery = db
       .select({
         id: payments.id,
         amount: payments.amount,

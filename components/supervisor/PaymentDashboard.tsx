@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface PaymentRecord {
   id: number
@@ -57,7 +56,6 @@ export default function PaymentDashboard({
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
-  // const router = useRouter() // Unused for now
 
   const fetchPaymentRecords = async () => {
     try {
@@ -103,7 +101,7 @@ export default function PaymentDashboard({
 
   useEffect(() => {
     fetchPaymentRecords()
-  }, [filters])
+  }, [filters, fetchPaymentRecords])
 
   const handleApprovePayment = async (paymentId: number) => {
     startTransition(async () => {

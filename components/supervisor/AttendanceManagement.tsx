@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface AttendanceRecord {
   id: number
@@ -52,7 +51,6 @@ export default function AttendanceManagement({
   const [selectedRecords, setSelectedRecords] = useState<number[]>([])
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
-  // const router = useRouter() // Unused for now
 
   const fetchAttendanceRecords = async () => {
     try {
@@ -84,7 +82,7 @@ export default function AttendanceManagement({
 
   useEffect(() => {
     fetchAttendanceRecords()
-  }, [filters])
+  }, [filters, fetchAttendanceRecords])
 
   const handleApproveRecord = async (attendanceId: number) => {
     startTransition(async () => {

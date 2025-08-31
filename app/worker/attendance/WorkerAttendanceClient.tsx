@@ -14,9 +14,8 @@ interface Worker {
   workerId?: number
 }
 
-interface WorkerAttendanceClientProps {
-  // Empty interface for future props
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface WorkerAttendanceClientProps {}
 
 interface QRCodeData {
   qrCodeDataUrl: string

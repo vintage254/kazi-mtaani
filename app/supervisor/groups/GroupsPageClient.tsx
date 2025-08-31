@@ -29,7 +29,7 @@ interface GroupsPageClientProps {
 
 export default function GroupsPageClient({ supervisors }: GroupsPageClientProps) {
   const [groups, setGroups] = useState<Group[]>([])
-  const [, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{id: number, name: string} | null>(null)
