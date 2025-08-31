@@ -43,7 +43,7 @@ export default function AssignWorkerModal({ isOpen, onClose, groupId, groupName 
       // Then get unassigned workers
       const workers = await getUnassignedWorkers()
       setUnassignedWorkers(workers)
-    } catch (err) {
+    } catch {
       setError('Failed to load unassigned workers')
     } finally {
       setIsLoading(false)

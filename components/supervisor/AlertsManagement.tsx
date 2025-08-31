@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { markAlertAsRead, resolveAlert, generateLowAttendanceAlerts, generatePaymentPendingAlerts, getAllAlerts } from '@/lib/db/alerts-actions'
-import { getAlertHistory, getAlertStats, bulkMarkAlertsAsRead, bulkResolveAlerts } from '@/lib/db/alert-history-actions'
+import { bulkMarkAlertsAsRead, bulkResolveAlerts } from '@/lib/db/alert-history-actions'
 
 interface Alert {
   id: number
@@ -17,21 +17,12 @@ interface Alert {
   resolvedAt?: Date | null
 }
 
-interface User {
-  id: number
-  firstName: string | null
-  lastName: string | null
-  role: string | null
-}
-
 interface AlertsManagementProps {
   initialAlerts: Alert[]
-  currentUser: User
 }
 
 export default function AlertsManagement({ initialAlerts }: AlertsManagementProps) {
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
-  const [showHistory, setShowHistory] = useState(false)
   const [selectedAlerts, setSelectedAlerts] = useState<number[]>([])
   const [filters, setFilters] = useState({
     severity: '',

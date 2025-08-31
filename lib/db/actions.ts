@@ -9,8 +9,8 @@ function ensureDb() {
   }
   return db
 }
-import { groups, workers, users, attendance, payments, alerts } from './schema'
-import { eq, desc, count, avg, and, gte, lte, isNull } from 'drizzle-orm'
+import { users, workers, groups, attendance, alerts } from './schema'
+import { eq, desc, count, and, gte, lte, isNull } from 'drizzle-orm'
 import QRCode from 'qrcode'
 import crypto from 'crypto'
 import nodemailer from 'nodemailer'

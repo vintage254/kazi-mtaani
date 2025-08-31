@@ -11,7 +11,7 @@ interface AttendanceRecord {
   workerName: string | null
   workerLastName: string | null
   groupName: string | null
-  supervisorApproved: boolean
+  supervisorApproved: boolean | null
   dailyRate: string | null
 }
 

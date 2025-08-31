@@ -2,7 +2,7 @@
 
 import { db } from './index'
 import { alerts, workers, users, groups, attendance, payments } from './schema'
-import { eq, and, desc, lte, gte, sql, isNull, count } from 'drizzle-orm'
+import { eq, and, desc, lte, count } from 'drizzle-orm'
 
 // Helper function to ensure database connection
 function ensureDb() {
@@ -117,7 +117,6 @@ export async function createAlert(alertData: {
 
 // Generate low attendance alerts
 export async function generateLowAttendanceAlerts() {
-  const today = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   
   // Get groups with low attendance (less than 70%)

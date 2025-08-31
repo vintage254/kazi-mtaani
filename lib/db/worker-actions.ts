@@ -2,7 +2,7 @@
 
 import { db } from './index'
 import { workers, groups, users, attendance, payments } from './schema'
-import { eq, desc, count, avg, and, gte, lte } from 'drizzle-orm'
+import { eq, desc, count, and, gte, lte } from 'drizzle-orm'
 
 // Helper function to ensure database connection
 function ensureDb() {

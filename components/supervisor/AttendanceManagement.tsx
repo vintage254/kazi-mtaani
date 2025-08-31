@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { approveAttendanceRecord, bulkApproveAttendance } from '@/lib/db/attendance-actions'
-import { getGroups } from '@/lib/db/actions'
 
 interface AttendanceRecord {
   id: number
