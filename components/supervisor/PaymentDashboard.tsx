@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useTransition, useEffect, useCallback } from 'react'
 
 interface PaymentRecord {
   id: number
@@ -57,7 +57,7 @@ export default function PaymentDashboard({
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
 
-  const fetchPaymentRecords = async () => {
+  const fetchPaymentRecords = useCallback(async () => {
     try {
       const params = new URLSearchParams()
       Object.entries(filters).forEach(([key, value]) => {
@@ -93,11 +93,12 @@ export default function PaymentDashboard({
         setPaymentStats(statsData)
       }
     } catch (error) {
-      console.error('Error fetching payment data:', error)
+      console.error('Error fetching payment records:', error)
+      setRecords([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
     fetchPaymentRecords()

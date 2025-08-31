@@ -29,14 +29,12 @@ interface GroupsPageClientProps {
 
 export default function GroupsPageClient({ supervisors }: GroupsPageClientProps) {
   const [groups, setGroups] = useState<Group[]>([])
-  const [loading, setLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{id: number, name: string} | null>(null)
 
   const fetchGroups = async () => {
     try {
-      setLoading(true)
       const response = await fetch('/api/groups', {
         cache: 'no-store',
         headers: {
@@ -56,7 +54,7 @@ export default function GroupsPageClient({ supervisors }: GroupsPageClientProps)
       console.error('Error fetching groups:', error)
       setGroups([])
     } finally {
-      setLoading(false)
+      // Loading state removed
     }
   }
 

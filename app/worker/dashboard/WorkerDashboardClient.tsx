@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import WorkerSidebar from '@/components/WorkerSidebar'
 
 interface Worker {
@@ -55,7 +55,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
   const [paymentHistory, setPaymentHistory] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchWorkerData = async () => {
+  const fetchWorkerData = useCallback(async () => {
     try {
       const [statsRes, activityRes, paymentsRes] = await Promise.all([
         fetch('/api/worker/stats', {
@@ -101,7 +101,7 @@ export default function WorkerDashboardClient({}: WorkerDashboardClientProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchWorkerData()

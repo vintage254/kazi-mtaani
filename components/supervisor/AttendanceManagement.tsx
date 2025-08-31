@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useEffect, useCallback, useTransition } from 'react'
 
 interface AttendanceRecord {
   id: number
@@ -52,7 +52,7 @@ export default function AttendanceManagement({
   const [filters, setFilters] = useState(initialFilters)
   const [isPending, startTransition] = useTransition()
 
-  const fetchAttendanceRecords = async () => {
+  const fetchAttendanceRecords = useCallback(async () => {
     try {
       const params = new URLSearchParams()
       Object.entries(filters).forEach(([key, value]) => {
@@ -75,10 +75,11 @@ export default function AttendanceManagement({
       }
     } catch (error) {
       console.error('Error fetching attendance records:', error)
+      setRecords([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
     fetchAttendanceRecords()
