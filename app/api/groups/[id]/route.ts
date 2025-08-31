@@ -33,7 +33,16 @@ export async function DELETE(
     // Then delete the group
     await db.delete(groups).where(eq(groups.id, groupId))
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json(
+      { success: true },
+      { 
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
+    )
   } catch (error) {
     console.error('Error deleting group:', error)
     return NextResponse.json(

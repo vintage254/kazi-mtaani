@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import CreateGroupModal from '@/components/supervisor/CreateGroupModal'
 import EditGroupModal from '@/components/supervisor/EditGroupModal'
@@ -24,14 +24,45 @@ interface Supervisor {
 }
 
 interface GroupsPageClientProps {
-  groups: Group[]
   supervisors: Supervisor[]
 }
 
-export default function GroupsPageClient({ groups, supervisors }: GroupsPageClientProps) {
+export default function GroupsPageClient({ supervisors }: GroupsPageClientProps) {
+  const [groups, setGroups] = useState<Group[]>([])
+  const [loading, setLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{id: number, name: string} | null>(null)
+
+  const fetchGroups = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/groups', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setGroups(data.groups || [])
+      } else {
+        console.error('Failed to fetch groups')
+        setGroups([])
+      }
+    } catch (error) {
+      console.error('Error fetching groups:', error)
+      setGroups([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchGroups()
+  }, [])
 
   const handleDeleteGroup = (id: number, name: string) => {
     setDeleteConfirm({ id, name })
@@ -46,8 +77,8 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
       })
       
       if (response.ok) {
-        // Refresh the page to show updated data
-        window.location.reload()
+        // Refresh groups data instead of full page reload
+        await fetchGroups()
       } else {
         alert('Failed to delete group')
       }

@@ -1,18 +1,15 @@
 import React from 'react'
 import Sidebar from '@/components/supervisor/Sidebar'
-import { getGroupsWithStats, getSupervisors } from '@/lib/db/actions'
+import { getSupervisors } from '@/lib/db/actions'
 import GroupsPageClient from './GroupsPageClient'
 
 const SupervisorGroups = async () => {
-  const [groups, supervisors] = await Promise.all([
-    getGroupsWithStats(),
-    getSupervisors()
-  ])
+  const supervisors = await getSupervisors()
 
   return (
     <div className="flex">
       <Sidebar />
-      <GroupsPageClient groups={groups} supervisors={supervisors} />
+      <GroupsPageClient supervisors={supervisors} />
     </div>
   )
 }
