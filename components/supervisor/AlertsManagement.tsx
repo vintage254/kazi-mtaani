@@ -295,7 +295,7 @@ export default function AlertsManagement({ initialAlerts }: AlertsManagementProp
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.222 3.777l6.717 6.717m0 0l2.828 2.828m-2.828-2.828L13.767 8.04m0 0l3.356-3.356a1 1 0 011.414 0l2.828 2.828a1 1 0 010 1.414l-3.356 3.356m-1.414-1.414L9.04 13.767m0 0L6.222 16.555a1 1 0 01-1.414 0L2 13.767a1 1 0 010-1.414l2.828-2.828a1 1 0 011.414 0z" />
               </svg>
               <p>No alerts found</p>
-              <p className="text-sm">Click "Generate New Alerts" to check for issues</p>
+              <p className="text-sm">Click &quot;Generate New Alerts&quot; to check for issues</p>
             </div>
           )}
         </div>

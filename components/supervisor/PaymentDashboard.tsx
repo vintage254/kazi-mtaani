@@ -61,7 +61,7 @@ export default function PaymentDashboard({
   const handleApprovePayment = async (paymentId: number) => {
     startTransition(async () => {
       try {
-        const exportData = records.map((payment: any) => ({ id: payment.id, amount: payment.amount, period: payment.period, status: payment.status, approvedAt: payment.approvedAt, disbursedAt: payment.disbursedAt, workerId: payment.workerId, workerName: payment.workerName, workerLastName: payment.workerLastName, groupId: payment.groupId, groupName: payment.groupName, userId: currentUser.id }))
+        // const exportData = records.map((payment) => ({ id: payment.id, amount: payment.amount, period: payment.period, status: payment.status, approvedAt: payment.approvedAt, disbursedAt: payment.disbursedAt, workerId: payment.workerId, workerName: payment.workerName, workerLastName: payment.workerLastName, groupId: payment.groupId, groupName: payment.groupName, userId: currentUser.id }))
         await approvePayment(paymentId, currentUser.id)
         setRecords(prev => prev.map(record => 
           record.id === paymentId 
@@ -203,7 +203,7 @@ export default function PaymentDashboard({
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={filters.status || ''}
-              onChange={(e) => handleFilterChange({ status: e.target.value as any })}
+              onChange={(e) => handleFilterChange({ status: e.target.value === '' ? undefined : e.target.value as 'pending' | 'approved' | 'disbursed' | 'failed' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Status</option>

@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { redirect } from 'next/navigation'
 
 // Redirect worker root to dashboard

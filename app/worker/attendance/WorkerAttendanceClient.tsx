@@ -204,7 +204,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Today's Schedule</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Today&apos;s Schedule</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -241,7 +241,7 @@ export default function WorkerAttendanceClient({ worker }: WorkerAttendanceClien
 
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">This Week's Attendance</h3>
+              <h3 className="text-lg font-semibold text-gray-900">This Week&apos;s Attendance</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">

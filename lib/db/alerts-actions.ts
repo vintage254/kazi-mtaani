@@ -136,12 +136,12 @@ export async function generateLowAttendanceAlerts() {
     ))
     .groupBy(groups.id, groups.name)
 
-  const lowAttendanceGroups = groupAttendance.filter((group: any) => {
+  const lowAttendanceGroups = groupAttendance.filter((group: { groupId: number | null; groupName: string; totalWorkers: number; presentCount: number }) => {
     const attendanceRate = group.totalWorkers > 0 ? (group.presentCount / group.totalWorkers) : 0
     return attendanceRate < 0.7 && group.totalWorkers > 0
   })
 
-  const alertPromises = lowAttendanceGroups.map((group: any) => 
+  const alertPromises = lowAttendanceGroups.map((group: { groupId: number | null; groupName: string; totalWorkers: number; presentCount: number }) => 
     createAlert({
       type: 'low_attendance',
       title: 'Low Attendance Alert',
@@ -178,14 +178,14 @@ export async function generatePaymentPendingAlerts() {
       lte(payments.period, threeDaysAgo)
     ))
 
-  const alertPromises = pendingPayments.map((payment: unknown) => 
+  const alertPromises = pendingPayments.map((payment: { id: number; workerId: number | null; groupId: number | null; amount: string; period: string | null; workerName: string | null; groupName: string }) => 
     createAlert({
       type: 'payment_pending',
       title: 'Payment Overdue',
-      description: `Payment of KSh ${(payment as any).amount} for ${(payment as any).workerName} (${(payment as any).groupName}) is pending for more than 3 days`,
+      description: `Payment of KSh ${payment.amount} for ${payment.workerName || 'Unknown Worker'} (${payment.groupName}) is pending for more than 3 days`,
       severity: 'medium',
-      workerId: (payment as any).workerId || undefined,
-      groupId: (payment as any).groupId || undefined
+      workerId: payment.workerId || undefined,
+      groupId: payment.groupId || undefined
     })
   )
 

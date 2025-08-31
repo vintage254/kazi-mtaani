@@ -282,7 +282,7 @@ export async function getPaymentStats() {
     .from(payments)
     .where(eq(payments.status, 'disbursed'))
 
-  const calculateSum = (records: any[]) => {
+  const calculateSum = (records: { amount: string | null }[]) => {
     return records.reduce((sum, record) => sum + parseFloat(record.amount || '0'), 0)
   }
 

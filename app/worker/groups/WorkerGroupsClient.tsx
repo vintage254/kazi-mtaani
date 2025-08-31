@@ -93,7 +93,7 @@ export default function WorkerGroupsClient({ worker, groupDetails, currentUserId
                     </span>
                     <span className="text-sm text-gray-500">{groupDetails.stats.totalMembers} members</span>
                     <span className="text-sm text-gray-500">Supervisor: {groupDetails.group.supervisorName || 'No Supervisor'}</span>
-                    <p className="text-sm text-gray-600">You're not assigned to any group yet. Contact your supervisor for group assignment.</p>
+                    <p className="text-sm text-gray-600">You&apos;re not assigned to any group yet. Contact your supervisor for group assignment.</p>
                   </div>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function WorkerGroupsClient({ worker, groupDetails, currentUserId
         {/* Weekly Performance */}
         <div className="mt-8 bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">This Week's Performance</h3>
+            <h3 className="text-lg font-semibold text-gray-900">This Week&apos;s Performance</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

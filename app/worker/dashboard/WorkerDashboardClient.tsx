@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
+import React from 'react'
 import WorkerSidebar from '@/components/WorkerSidebar'
 
 interface Worker {
@@ -54,9 +53,9 @@ export default function WorkerDashboardClient({
   recentActivity, 
   paymentHistory 
 }: WorkerDashboardClientProps) {
-  const handleEditProfile = () => {
-    console.log('Edit profile clicked')
-  }
+  // const handleEditProfile = () => {
+  //   // TODO: Implement profile editing
+  // }
 
   const formatDate = (date: Date | null) => {
     if (!date) return 'N/A'
@@ -126,7 +125,7 @@ export default function WorkerDashboardClient({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Days Worked</h3>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {worker.name}!</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Here's what's happening with your work today.</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Here&apos;s what&apos;s happening with your work today.</p>
           </div>
           <div className="flex items-center space-x-4">
             <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 dark:text-white">
