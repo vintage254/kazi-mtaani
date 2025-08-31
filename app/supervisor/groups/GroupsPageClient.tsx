@@ -161,7 +161,7 @@ export default function GroupsPageClient({ groups, supervisors }: GroupsPageClie
                     <div className="text-sm font-medium text-gray-900">{group.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <p className="text-sm text-gray-600">No workers assigned. Click &quot;Assign Workers&quot; to add workers to this group.</p>
+                    <div className="text-sm text-gray-900">{group.location}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {group.workerCount || 0}
