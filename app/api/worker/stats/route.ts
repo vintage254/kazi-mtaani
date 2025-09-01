@@ -23,7 +23,7 @@ export async function GET() {
       )
     }
 
-    // Get user
+    // Get user from database
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, userId)
     })
@@ -68,7 +68,7 @@ export async function GET() {
         },
         worker: {
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Worker',
-          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          avatar: user.profileImage || "https://unsplash.com/photos/a-group-of-white-buttons-with-a-blue-background-k7-zL0MwczY",
           handle: user.firstName?.toLowerCase() || 'worker',
           status: "Offline",
           group: 'No Group Assigned',
@@ -91,7 +91,7 @@ export async function GET() {
 
     const worker = {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Worker',
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      avatar: user.profileImage || "https://unsplash.com/photos/a-group-of-white-buttons-with-a-blue-background-k7-zL0MwczY",
       handle: user.firstName?.toLowerCase() || 'worker',
       status: workerData.isActive ? "Online" : "Offline",
       group: workerData.groupName || 'No Group Assigned',
