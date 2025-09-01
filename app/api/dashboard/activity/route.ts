@@ -38,7 +38,7 @@ export async function GET() {
       .from(attendance)
       .innerJoin(workers, eq(attendance.workerId, workers.id))
       .innerJoin(users, eq(workers.userId, users.id))
-      .innerJoin(groups, eq(workers.groupId, groups.id))
+      .leftJoin(groups, eq(workers.groupId, groups.id))
       .where(gte(attendance.checkInTime, yesterday))
       .orderBy(desc(attendance.checkInTime))
       .limit(10)

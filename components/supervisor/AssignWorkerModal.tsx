@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { assignWorkerToGroup, getUnassignedWorkers, createMissingWorkerRecords, sendQRCodesToGroupWorkers } from '@/lib/db/actions'
+import { assignWorkerToGroup, getUnassignedWorkers, createMissingWorkerRecords, sendQRCodesToGroupWorkers, cleanupDuplicateWorkers } from '@/lib/db/actions'
 import { useRouter } from 'next/navigation'
 
 interface AssignWorkerModalProps {
@@ -37,11 +37,15 @@ export default function AssignWorkerModal({ isOpen, onClose, groupId, groupName 
   const loadUnassignedWorkers = async () => {
     setIsLoading(true)
     try {
-      // First, create missing worker records for users with worker role
+      // First, clean up any duplicate worker records
+      await cleanupDuplicateWorkers()
+      
+      // Then, create missing worker records for users with worker role
       await createMissingWorkerRecords()
       
-      // Then get unassigned workers
+      // Finally get unassigned workers
       const workers = await getUnassignedWorkers()
+      
       setUnassignedWorkers(workers)
     } catch {
       setError('Failed to load unassigned workers')

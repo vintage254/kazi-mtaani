@@ -35,7 +35,7 @@ export async function GET() {
       )
     }
 
-    // Get worker data with explicit joins
+    // Get worker data with explicit joins including supervisor info
     const workerResults = await db
       .select({
         id: workers.id,
@@ -46,10 +46,14 @@ export async function GET() {
         joinedAt: workers.joinedAt,
         isActive: workers.isActive,
         groupName: groups.name,
-        supervisorId: groups.supervisorId
+        groupLocation: groups.location,
+        supervisorId: groups.supervisorId,
+        supervisorFirstName: users.firstName,
+        supervisorLastName: users.lastName
       })
       .from(workers)
       .leftJoin(groups, eq(workers.groupId, groups.id))
+      .leftJoin(users, eq(groups.supervisorId, users.id))
       .where(eq(workers.userId, user.id))
     
     const workerData = workerResults[0]
@@ -81,13 +85,17 @@ export async function GET() {
 
     const stats = await getWorkerDashboardStats(workerData.id)
 
+    const supervisorName = workerData.supervisorFirstName && workerData.supervisorLastName 
+      ? `${workerData.supervisorFirstName} ${workerData.supervisorLastName}` 
+      : workerData.supervisorFirstName || 'No Supervisor'
+
     const worker = {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Worker',
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       handle: user.firstName?.toLowerCase() || 'worker',
       status: workerData.isActive ? "Online" : "Offline",
       group: workerData.groupName || 'No Group Assigned',
-      supervisor: 'No Supervisor', // Will get supervisor info separately if needed
+      supervisor: supervisorName,
       workerId: workerData.id
     }
 

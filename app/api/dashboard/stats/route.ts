@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { groups, workers, attendance } from '@/lib/db/schema'
-import { eq, count, and, gte } from 'drizzle-orm'
+import { workers, groups, attendance } from '@/lib/db/schema'
+import { count, eq, and, gte } from 'drizzle-orm'
 import { auth } from '@clerk/nextjs/server'
-import { createMissingWorkerRecords } from '@/lib/db/actions'
+import { createMissingWorkerRecords, cleanupDuplicateWorkers } from '@/lib/db/actions'
 
 export async function GET() {
   try {
@@ -23,6 +23,9 @@ export async function GET() {
       )
     }
 
+    // Clean up duplicate worker records first
+    await cleanupDuplicateWorkers()
+    
     // Ensure worker records exist for all users with worker role
     await createMissingWorkerRecords()
 
@@ -47,6 +50,12 @@ export async function GET() {
         eq(attendance.status, 'present')
       ))
 
+    // Get pending approvals - attendance records that need supervisor approval
+    const pendingApprovalsResult = await db
+      .select({ count: count() })
+      .from(attendance)
+      .where(eq(attendance.supervisorApproved, false))
+
     const attendanceRate = totalWorkers > 0 
       ? Math.round((attendanceToday[0]?.count || 0) / totalWorkers * 100)
       : 0
@@ -56,7 +65,7 @@ export async function GET() {
         totalWorkers,
         activeGroups,
         attendanceRate,
-        pendingApprovals: 0 // Placeholder for now
+        pendingApprovals: pendingApprovalsResult[0]?.count || 0
       },
       { 
         headers: {

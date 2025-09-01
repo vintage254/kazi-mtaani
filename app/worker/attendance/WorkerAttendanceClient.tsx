@@ -14,6 +14,24 @@ interface Worker {
   workerId?: number
 }
 
+interface AttendanceRecord {
+  id: number
+  date: string
+  activity: string
+  location: string | null
+  checkInTime: string | null
+  checkOutTime: string | null
+  groupName: string | null
+  supervisorApproved: boolean | null
+}
+
+interface WeeklyStats {
+  daysWorked: number
+  totalHours: number
+  attendanceRate: number
+  pendingPayments: number
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WorkerAttendanceClientProps {}
 
@@ -36,20 +54,32 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
   const [qrCode, setQrCode] = useState<QRCodeData | null>(null)
   const [loading, setLoading] = useState(true)
   const [showQRCode, setShowQRCode] = useState(false)
+  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([])
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null)
 
   const fetchWorkerData = async () => {
     try {
-      const response = await fetch('/api/worker/stats', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      })
+      const [statsResponse, activityResponse] = await Promise.all([
+        fetch('/api/worker/stats', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
+        fetch('/api/worker/activity', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
+      ])
       
-      if (response.ok) {
-        const data = await response.json()
+      if (statsResponse.ok) {
+        const data = await statsResponse.json()
         setWorker(data.worker)
+        setWeeklyStats(data.stats)
         
         // Fetch QR code if worker has ID
         if (data.worker?.workerId) {
@@ -69,6 +99,11 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             console.error('Error fetching QR code:', error)
           }
         }
+      }
+
+      if (activityResponse.ok) {
+        const activityData = await activityResponse.json()
+        setAttendanceData(activityData.recentActivity || [])
       }
     } catch (error) {
       console.error('Error fetching worker data:', error)
@@ -293,51 +328,58 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Monday</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">8:30 AM - 5:15 PM</span>
+                {attendanceData.length > 0 ? (
+                  attendanceData.slice(0, 5).map((record, index) => {
+                    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                    const dayName = days[index] || new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' })
+                    const isPresent = record.activity === 'present'
+                    
+                    return (
+                      <div key={record.id} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">{dayName}</span>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${isPresent ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                          <span className={`text-sm font-medium ${isPresent ? 'text-gray-900' : 'text-gray-500'}`}>
+                            {isPresent ? (
+                              record.checkInTime && record.checkOutTime ? 
+                                `${new Date(record.checkInTime).toLocaleTimeString('en-US', { 
+                                  hour: 'numeric', 
+                                  minute: '2-digit', 
+                                  hour12: true 
+                                })} - ${new Date(record.checkOutTime).toLocaleTimeString('en-US', { 
+                                  hour: 'numeric', 
+                                  minute: '2-digit', 
+                                  hour12: true 
+                                })}` :
+                                record.checkInTime ? 
+                                  `${new Date(record.checkInTime).toLocaleTimeString('en-US', { 
+                                    hour: 'numeric', 
+                                    minute: '2-digit', 
+                                    hour12: true 
+                                  })} - In Progress` :
+                                  'Present'
+                            ) : 'Absent'}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    <p className="text-sm">No attendance records found</p>
+                    <p className="text-xs mt-1">Check in to start tracking your attendance</p>
                   </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tuesday</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">8:15 AM - 5:00 PM</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Wednesday</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">8:45 AM - 5:30 PM</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Thursday</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">8:20 AM - 5:10 PM</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Friday</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-500">Absent</span>
-                  </div>
-                </div>
+                )}
               </div>
               
               <div className="mt-6 p-4 bg-green-50 rounded-lg">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-green-900">Attendance Rate</span>
-                  <span className="text-sm font-bold text-green-700">80%</span>
+                  <span className="text-sm font-bold text-green-700">{weeklyStats?.attendanceRate || 0}%</span>
                 </div>
                 <div className="flex justify-between mt-1">
-                  <span className="text-sm text-green-700">Days Present</span>
-                  <span className="text-sm text-green-700">4/5</span>
+                  <span className="text-sm text-green-700">Days Worked</span>
+                  <span className="text-sm text-green-700">{weeklyStats?.daysWorked || 0}/5</span>
                 </div>
               </div>
             </div>
@@ -361,39 +403,62 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Aug 22, 2024</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8:20 AM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5:10 PM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8.5 hrs</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                      Present
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Aug 21, 2024</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8:45 AM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5:30 PM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8.5 hrs</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                      Present
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Aug 20, 2024</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8:15 AM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5:00 PM</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8.5 hrs</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                      Present
-                    </span>
-                  </td>
-                </tr>
+                {attendanceData.length > 0 ? (
+                  attendanceData.map((record) => {
+                    const checkInTime = record.checkInTime ? new Date(record.checkInTime) : null
+                    const checkOutTime = record.checkOutTime ? new Date(record.checkOutTime) : null
+                    const hoursWorked = checkInTime && checkOutTime ? 
+                      ((checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60)).toFixed(1) : 
+                      checkInTime ? 'In Progress' : '-'
+                    
+                    const isPresent = record.activity === 'present'
+                    
+                    return (
+                      <tr key={record.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(record.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {checkInTime ? checkInTime.toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit', 
+                            hour12: true 
+                          }) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {checkOutTime ? checkOutTime.toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit', 
+                            hour12: true 
+                          }) : checkInTime ? 'In Progress' : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {typeof hoursWorked === 'string' ? hoursWorked : `${hoursWorked} hrs`}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            isPresent ? 'bg-green-100 text-green-800' : 
+                            record.activity === 'late' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {record.activity.charAt(0).toUpperCase() + record.activity.slice(1)}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      <p className="text-sm">No attendance history found</p>
+                      <p className="text-xs mt-1">Your attendance records will appear here once you start checking in</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

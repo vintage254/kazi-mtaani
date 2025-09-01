@@ -151,7 +151,7 @@ export async function getGroupsWithStats() {
     })
     .from(groups)
     .leftJoin(users, eq(groups.supervisorId, users.id))
-    .leftJoin(workers, eq(groups.id, workers.groupId))
+    .leftJoin(workers, and(eq(groups.id, workers.groupId), eq(workers.isActive, true)))
     .groupBy(groups.id, groups.name, groups.location, groups.status, users.firstName, users.lastName, groups.updatedAt)
 }
 
@@ -169,12 +169,12 @@ export async function getWorkersByGroupId(groupId: number) {
     })
     .from(workers)
     .innerJoin(users, eq(workers.userId, users.id))
-    .where(eq(workers.groupId, groupId))
+    .where(and(eq(workers.groupId, groupId), eq(workers.isActive, true)))
 }
 
 // Dashboard stats
 export async function getDashboardStats() {
-  const totalWorkers = await ensureDb().select({ count: count() }).from(workers)
+  const totalWorkers = await ensureDb().select({ count: count() }).from(workers).where(eq(workers.isActive, true))
   const activeGroups = await ensureDb().select({ count: count() }).from(groups).where(eq(groups.status, 'active'))
   
   // Get today's attendance
@@ -425,7 +425,7 @@ export async function getUnassignedWorkers() {
     })
     .from(workers)
     .innerJoin(users, eq(workers.userId, users.id))
-    .where(isNull(workers.groupId))
+    .where(and(isNull(workers.groupId), eq(workers.isActive, true)))
 }
 
 // Create worker records for users with worker role who don't have worker records
@@ -442,20 +442,87 @@ export async function createMissingWorkerRecords() {
     .leftJoin(workers, eq(users.id, workers.userId))
     .where(and(eq(users.role, 'worker'), isNull(workers.id)))
 
-  // Create worker records for these users
+  // Create worker records for these users, but check for duplicates first
   if (usersWithoutWorkerRecords.length > 0) {
-    const workerRecords = usersWithoutWorkerRecords.map(user => ({
-      userId: user.id,
-      position: 'worker',
-      dailyRate: '500.00', // Default daily rate
-      isActive: true
-    }))
+    for (const user of usersWithoutWorkerRecords) {
+      // Double-check that no worker record exists for this user
+      const existingWorker = await ensureDb()
+        .select({ id: workers.id })
+        .from(workers)
+        .where(eq(workers.userId, user.id))
+        .limit(1)
 
-    await ensureDb().insert(workers).values(workerRecords)
-    console.log(`Created ${workerRecords.length} missing worker records`)
+      if (existingWorker.length === 0) {
+        await ensureDb().insert(workers).values({
+          userId: user.id,
+          position: 'worker',
+          dailyRate: '500.00',
+          isActive: true
+        })
+        console.log(`Created worker record for user ${user.firstName} ${user.lastName}`)
+      }
+    }
   }
 
   return usersWithoutWorkerRecords.length
+}
+
+// Clean up duplicate worker records
+export async function cleanupDuplicateWorkers() {
+  // Find all workers grouped by userId
+  const allWorkers = await ensureDb()
+    .select({
+      id: workers.id,
+      userId: workers.userId,
+      position: workers.position,
+      isActive: workers.isActive,
+      joinedAt: workers.joinedAt
+    })
+    .from(workers)
+    .orderBy(workers.userId, workers.joinedAt)
+
+  const userWorkerMap = new Map<number, typeof allWorkers>()
+  
+  // Group workers by userId (filter out null userIds)
+  allWorkers.forEach(worker => {
+    if (worker.userId !== null) {
+      if (!userWorkerMap.has(worker.userId)) {
+        userWorkerMap.set(worker.userId, [])
+      }
+      userWorkerMap.get(worker.userId)!.push(worker)
+    }
+  })
+
+  let duplicatesRemoved = 0
+
+  // For each user with multiple worker records, keep the oldest active one
+  for (const [userId, userWorkers] of userWorkerMap) {
+    if (userWorkers.length > 1) {
+      // Sort by joinedAt (oldest first), then by isActive (active first)
+      const sortedWorkers = userWorkers.sort((a, b) => {
+        if (a.isActive !== b.isActive) {
+          return b.isActive ? 1 : -1 // Active records first
+        }
+        return new Date(a.joinedAt || 0).getTime() - new Date(b.joinedAt || 0).getTime()
+      })
+
+      // Keep the first one (oldest active), delete the rest
+      const keepWorker = sortedWorkers[0]
+      const deleteWorkers = sortedWorkers.slice(1)
+
+      for (const workerToDelete of deleteWorkers) {
+        await ensureDb()
+          .delete(workers)
+          .where(eq(workers.id, workerToDelete.id))
+        
+        duplicatesRemoved++
+        console.log(`Removed duplicate worker record ${workerToDelete.id} for user ${userId}`)
+      }
+    }
+  }
+
+  console.log(`Cleanup completed: Removed ${duplicatesRemoved} duplicate worker records`)
+  return duplicatesRemoved
 }
 
 // Generate QR code for worker attendance

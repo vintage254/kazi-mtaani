@@ -94,7 +94,7 @@ export default function WorkerGroupsClient({ worker, groupDetails, currentUserId
                     </span>
                     <span className="text-sm text-gray-500">{groupDetails.stats.totalMembers} members</span>
                     <span className="text-sm text-gray-500">Supervisor: {groupDetails.group.supervisorName || 'No Supervisor'}</span>
-                    <p className="text-sm text-gray-600">You&apos;re not assigned to any group yet. Contact your supervisor for group assignment.</p>
+                    <p className="text-sm text-gray-600">You are assigned to this work group. Coordinate with your supervisor and team members for daily tasks.</p>
                   </div>
                 </div>
               </div>

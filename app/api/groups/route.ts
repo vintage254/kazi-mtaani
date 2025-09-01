@@ -37,7 +37,7 @@ export async function GET() {
       .from(groups)
       .leftJoin(users, eq(groups.supervisorId, users.id))
       .leftJoin(workers, eq(groups.id, workers.groupId))
-      .groupBy(groups.id, users.firstName, users.lastName)
+      .groupBy(groups.id, groups.name, groups.location, groups.status, users.firstName, users.lastName, groups.updatedAt)
 
     return NextResponse.json(
       { groups: groupsWithStats },
