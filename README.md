@@ -6,7 +6,9 @@ A comprehensive workforce management platform designed for construction and labo
 
 ### For Workers
 - **Dashboard**: Personal dashboard with attendance tracking and group assignments
-- **Attendance Management**: Clock in/out functionality with location tracking
+- **Attendance Management**: Clock in/out functionality with QR codes or fingerprint authentication
+- **Fingerprint Authentication**: Secure biometric login using WebAuthn standard
+- **Mobile-First Design**: Optimized for mobile devices with responsive navigation
 - **Group Participation**: Join and manage work groups
 - **Profile Management**: Update personal information and skills
 
@@ -28,7 +30,8 @@ A comprehensive workforce management platform designed for construction and labo
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Clerk
+- **Authentication**: Clerk + WebAuthn (Fingerprint)
+- **Biometric Auth**: @simplewebauthn/server & @simplewebauthn/browser
 - **Deployment**: Vercel
 - **Build Tool**: Turbopack
 
@@ -68,6 +71,14 @@ A comprehensive workforce management platform designed for construction and labo
    NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/worker/dashboard"
    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/worker/dashboard"
+   
+   # WebAuthn Fingerprint Authentication
+   WEBAUTHN_RP_ID="localhost"  # Use your domain in production
+   WEBAUTHN_RP_NAME="Kazi Mtaani Attendance System"
+   WEBAUTHN_ORIGIN="http://localhost:3000"  # Use https:// in production
+   
+   # Scanner API Security
+   QR_SECRET="your-secure-random-secret-key"
    ```
 
 4. **Database Setup**
@@ -134,12 +145,28 @@ The application is deployed on Vercel. For your own deployment:
 
 ## 📚 API Documentation
 
+### Authentication Endpoints
+- `POST /api/webauthn/generate-registration-options` - Generate fingerprint enrollment options
+- `POST /api/webauthn/verify-registration` - Verify fingerprint enrollment
+- `POST /api/webauthn/generate-authentication-options` - Generate authentication challenge
+- `POST /api/webauthn/verify-authentication` - Verify fingerprint authentication
+
+### Scanner API Endpoints
+- `POST /api/scanner` - Original QR code scanner endpoint
+- `POST /api/scanner/fingerprint` - Fingerprint-only scanner endpoint
+- `POST /api/scanner/unified` - Unified scanner supporting both QR and fingerprint
+- `GET /api/scanner/fingerprint` - Scanner status and capabilities
+
+### Worker Management
+- `PATCH /api/worker/settings` - Update worker attendance method preferences
+
 ### Webhook Endpoints
 - `POST /api/webhooks/clerk` - Handles Clerk user events (creation, updates)
 
 ### Database Actions
 - User management (create, update, fetch)
-- Attendance tracking
+- Attendance tracking with multiple authentication methods
+- Fingerprint credential management
 - Group management
 - Alert system
 
