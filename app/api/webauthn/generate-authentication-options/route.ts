@@ -8,7 +8,7 @@ import { auth } from '@clerk/nextjs/server';
 // In-memory store for challenges. In a real app, use a database or session store.
 const challengeStore: { [key: string]: string } = {};
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const { userId: clerkId } = await auth();
 
   if (!clerkId || !db) {

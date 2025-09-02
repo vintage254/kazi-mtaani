@@ -54,7 +54,7 @@ export default function AttendanceMethodSettings({
         ...worker,
         preferredAttendanceMethod: method,
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to update settings')
     } finally {
       setIsUpdating(false)
