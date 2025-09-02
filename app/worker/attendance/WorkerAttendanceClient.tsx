@@ -1,10 +1,15 @@
 'use client'
 
 import WorkerSidebar from '@/components/WorkerSidebar'
+import MobileNavigation from '@/components/MobileNavigation'
+import FingerprintAuthentication from '@/components/FingerprintAuthentication'
+import AttendanceMethodSettings from '@/components/AttendanceMethodSettings'
+import { useIsMobile } from '@/lib/utils/use-is-mobile'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 interface Worker {
+  id: number
   name: string
   avatar: string
   handle: string
@@ -12,6 +17,8 @@ interface Worker {
   group: string
   supervisor: string
   workerId?: number
+  preferredAttendanceMethod: 'qr_code' | 'fingerprint' | 'both'
+  fingerprintEnabled: boolean
 }
 
 interface AttendanceRecord {
@@ -50,12 +57,15 @@ interface QRCodeData {
 }
 
 export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) {
+  const isMobile = useIsMobile()
   const [worker, setWorker] = useState<Worker | null>(null)
   const [qrCode, setQrCode] = useState<QRCodeData | null>(null)
   const [loading, setLoading] = useState(true)
   const [showQRCode, setShowQRCode] = useState(false)
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([])
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showFingerprintAuth, setShowFingerprintAuth] = useState(false)
 
   const fetchWorkerData = async () => {
     try {
@@ -163,10 +173,10 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
     }
   }
 
-  if (loading || !worker) {
+    if (loading || !worker) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <div className="pl-64 p-8">
+        <div className="md:pl-64 p-4 md:p-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
             <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
@@ -182,20 +192,24 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <WorkerSidebar 
-        worker={worker}
-        notifications={0}
-      />
+        <div className="min-h-screen bg-gray-100">
+      {/* Conditional Navigation */}
+      {isMobile ? (
+        <MobileNavigation worker={worker} />
+      ) : (
+        <WorkerSidebar 
+          worker={worker}
+          notifications={0}
+        />
+      )}
 
       {/* Main Content */}
-      <div className="pl-64 p-8 min-h-screen">
+      <div className="md:pl-64 p-4 md:p-8 pb-24 md:pb-8 min-h-screen">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Attendance</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Attendance</h1>
               <p className="text-gray-600 mt-1">Track your work hours and check-in status.</p>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -206,7 +220,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
         </div>
 
         {/* Check-in Status */}
-        <div className="bg-white rounded-lg shadow-sm border p-8 mb-8 text-center">
+        <div className="bg-white rounded-lg shadow-sm border p-4 md:p-8 mb-8 text-center">
           <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -216,12 +230,31 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
           <p className="text-gray-600 mb-6">You haven&apos;t checked in yet today. Don&apos;t forget to scan your QR code when you arrive at work!</p>
           
           <div className="space-y-4">
-            <button 
-              onClick={() => setShowQRCode(!showQRCode)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-            >
-              {showQRCode ? 'Hide My QR Code' : 'Show My QR Code'}
-            </button>
+            {/* Attendance Method Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button 
+                onClick={() => setShowQRCode(!showQRCode)}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                {showQRCode ? 'Hide QR Code' : 'Show QR Code'}
+              </button>
+              
+              {worker.fingerprintEnabled && (worker.preferredAttendanceMethod === 'fingerprint' || worker.preferredAttendanceMethod === 'both') && (
+                <button 
+                  onClick={() => setShowFingerprintAuth(!showFingerprintAuth)}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  {showFingerprintAuth ? 'Hide Fingerprint' : 'Use Fingerprint'}
+                </button>
+              )}
+              
+              <button 
+                onClick={() => setShowSettings(!showSettings)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Settings
+              </button>
+            </div>
             
             {qrCode && showQRCode && (
               <div className="mt-6 p-6 bg-gray-50 rounded-lg">
@@ -268,6 +301,43 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             {!loading && !qrCode && (
               <div className="text-red-500 text-sm">
                 Unable to generate QR code. Please contact your supervisor.
+              </div>
+            )}
+            
+            {/* Fingerprint Authentication */}
+            {showFingerprintAuth && worker.fingerprintEnabled && (
+              <div className="mt-6">
+                <FingerprintAuthentication
+                  onAuthenticationSuccess={() => {
+                    // Handle successful fingerprint authentication
+                    alert('Fingerprint authentication successful! (This would trigger check-in/out in production)')
+                    setShowFingerprintAuth(false)
+                  }}
+                  onAuthenticationError={(error) => {
+                    console.error('Fingerprint auth error:', error)
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Settings Panel */}
+            {showSettings && (
+              <div className="mt-6">
+                <AttendanceMethodSettings
+                  worker={{
+                    id: worker.id,
+                    preferredAttendanceMethod: worker.preferredAttendanceMethod,
+                    fingerprintEnabled: worker.fingerprintEnabled
+                  }}
+                  onSettingsUpdate={(updatedWorker) => {
+                    setWorker({
+                      ...worker,
+                      preferredAttendanceMethod: updatedWorker.preferredAttendanceMethod,
+                      fingerprintEnabled: updatedWorker.fingerprintEnabled
+                    })
+                    setShowSettings(false)
+                  }}
+                />
               </div>
             )}
           </div>

@@ -1,7 +1,7 @@
 # Scanner API Documentation
 
 ## Overview
-The Kazi Mtaani Scanner API enables external QR scanner machines to process worker attendance by scanning QR codes and logging attendance data.
+The Kazi Mtaani Scanner API enables external scanner machines to process worker attendance using both QR codes and fingerprint authentication, providing flexible and secure attendance logging.
 
 ## Base URL
 ```
@@ -32,6 +32,80 @@ Check if the scanner API is running.
 **POST** `/api/scanner`
 
 Process a QR code scan and log attendance (check-in or check-out).
+
+### 3. Process Fingerprint Authentication
+**POST** `/api/scanner/fingerprint`
+
+Process fingerprint authentication and log attendance (check-in or check-out).
+
+**Request Body:**
+```json
+{
+  "workerId": 123,
+  "credential": {
+    "id": "base64url_credential_id",
+    "response": {
+      "authenticatorData": "...",
+      "signature": "...",
+      "userHandle": "..."
+    }
+  },
+  "challenge": "base64url_challenge_from_server",
+  "scannerId": "SCANNER_001",
+  "scannerLocation": "Main Gate"
+}
+```
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "action": "check-in",
+  "method": "fingerprint",
+  "worker": {
+    "id": 123,
+    "name": "John Doe",
+    "group": "Construction Team",
+    "location": "Downtown Site"
+  },
+  "attendance": {
+    "date": "2024-08-29",
+    "checkInTime": "2024-08-29T10:46:22.000Z",
+    "checkOutTime": null,
+    "hoursWorked": null,
+    "location": "Main Gate",
+    "fingerprintMatchScore": 95.0
+  },
+  "timestamp": "2024-08-29T10:46:22.000Z"
+}
+```
+
+### 4. Unified Authentication (QR Code or Fingerprint)
+**POST** `/api/scanner/unified`
+
+Process either QR code or fingerprint authentication based on the method parameter.
+
+**Request Body (QR Code):**
+```json
+{
+  "method": "qr_code",
+  "qrData": "{\"workerId\":123,\"workerName\":\"John Doe\",...}",
+  "scannerId": "SCANNER_001",
+  "scannerLocation": "Main Gate"
+}
+```
+
+**Request Body (Fingerprint):**
+```json
+{
+  "method": "fingerprint",
+  "workerId": 123,
+  "credential": {...},
+  "challenge": "base64url_challenge",
+  "scannerId": "SCANNER_001",
+  "scannerLocation": "Main Gate"
+}
+```
 
 **Request Body:**
 ```json

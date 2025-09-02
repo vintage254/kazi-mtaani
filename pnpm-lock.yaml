@@ -17,6 +17,12 @@ importers:
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.0.1
+      '@simplewebauthn/browser':
+        specifier: ^13.1.2
+        version: 13.1.2
+      '@simplewebauthn/server':
+        specifier: ^13.1.2
+        version: 13.1.2
       '@types/nodemailer':
         specifier: ^7.0.1
         version: 7.0.1
@@ -626,6 +632,9 @@ packages:
       gsap: ^3.12.5
       react: '>=17'
 
+  '@hexagon/base64@1.1.28':
+    resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
+
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -788,6 +797,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
+  '@levischuck/tiny-cbor@0.2.11':
+    resolution: {integrity: sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow==}
+
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
@@ -865,6 +877,21 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
+  '@peculiar/asn1-android@2.4.0':
+    resolution: {integrity: sha512-YFueREq97CLslZZBI8dKzis7jMfEHSLxM+nr0Zdx1POiXFLjqqwoY5s0F1UimdBiEw/iKlHey2m56MRDv7Jtyg==}
+
+  '@peculiar/asn1-ecc@2.4.0':
+    resolution: {integrity: sha512-fJiYUBCJBDkjh347zZe5H81BdJ0+OGIg0X9z06v8xXUoql3MFeENUX0JsjCaVaU9A0L85PefLPGYkIoGpTnXLQ==}
+
+  '@peculiar/asn1-rsa@2.4.0':
+    resolution: {integrity: sha512-6PP75voaEnOSlWR9sD25iCQyLgFZHXbmxvUfnnDcfL6Zh5h2iHW38+bve4LfH7a60x7fkhZZNmiYqAlAff9Img==}
+
+  '@peculiar/asn1-schema@2.4.0':
+    resolution: {integrity: sha512-umbembjIWOrPSOzEGG5vxFLkeM8kzIhLkgigtsOrfLKnuzxWxejAcUX+q/SoZCdemlODOcr5WiYa7+dIEzBXZQ==}
+
+  '@peculiar/asn1-x509@2.4.0':
+    resolution: {integrity: sha512-F7mIZY2Eao2TaoVqigGMLv+NDdpwuBKU1fucHPONfzaBS4JXXCNCmfO0Z3dsy7JzKGqtDcYC1mr9JjaZQZNiuw==}
+
   '@reduxjs/toolkit@2.8.2':
     resolution: {integrity: sha512-MYlOhQ0sLdw4ud48FoC5w0dH9VfWQjtCjreKwYTT3l+r427qYC5Y8PihNutepr8XrNaBUDQo9khWUwQxZaqt5A==}
     peerDependencies:
@@ -881,6 +908,13 @@ packages:
 
   '@rushstack/eslint-patch@1.12.0':
     resolution: {integrity: sha512-5EwMtOqvJMMa3HbmxLlF74e+3/HhwBTMcvt3nqVJgGCozO6hzIPOBlwm8mGVNR9SN2IJpxSnlxczyDjcn7qIyw==}
+
+  '@simplewebauthn/browser@13.1.2':
+    resolution: {integrity: sha512-aZnW0KawAM83fSBUgglP5WofbrLbLyr7CoPqYr66Eppm7zO86YX6rrCjRB3hQKPrL7ATvY4FVXlykZ6w6FwYYw==}
+
+  '@simplewebauthn/server@13.1.2':
+    resolution: {integrity: sha512-VwoDfvLXSCaRiD+xCIuyslU0HLxVggeE5BL06+GbsP2l1fGf5op8e0c3ZtKoi+vSg1q4ikjtAghC23ze2Q3H9g==}
+    engines: {node: '>=20.0.0'}
 
   '@smithy/abort-controller@4.0.5':
     resolution: {integrity: sha512-jcrqdTQurIrBbUm4W2YdLVMQDoL0sA9DTxYd2s+R/y+2U9NLOP7Xf/YqfSg1FZhlZIYEnvk2mwbyvIfdLEPo8g==}
@@ -1443,6 +1477,10 @@ packages:
   arraybuffer.prototype.slice@1.0.4:
     resolution: {integrity: sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==}
     engines: {node: '>= 0.4'}
+
+  asn1js@3.0.6:
+    resolution: {integrity: sha512-UOCGPYbl0tv8+006qks/dTgV9ajs97X2p0FAbyS2iyCRrmLSRolDaHdp+v/CLgnzHc3fVB+CwYiUmei7ndFcgA==}
+    engines: {node: '>=12.0.0'}
 
   ast-types-flow@0.0.8:
     resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
@@ -2631,6 +2669,13 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
+  pvtsutils@1.3.6:
+    resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
+
+  pvutils@1.1.3:
+    resolution: {integrity: sha512-pMpnA0qRdFp32b1sJl1wOJNxZLQ2cbQx+k6tjNtZ8CpvVhNqEPRgivZ2WOUev2YMajecdH7ctUPDvEe87nariQ==}
+    engines: {node: '>=6.0.0'}
+
   qrcode@1.5.4:
     resolution: {integrity: sha512-1ca71Zgiu6ORjHqFBDpnSMTR2ReToX4l1Au1VFLyVeBTFavzQnv5JxMFr3ukHVKpSrSA2MCk0lNJSykjUfz7Zg==}
     engines: {node: '>=10.13.0'}
@@ -3702,6 +3747,8 @@ snapshots:
       gsap: 3.13.0
       react: 19.1.0
 
+  '@hexagon/base64@1.1.28': {}
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -3824,6 +3871,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@levischuck/tiny-cbor@0.2.11': {}
+
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
       '@emnapi/core': 1.4.5
@@ -3880,6 +3929,39 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
+  '@peculiar/asn1-android@2.4.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.4.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-ecc@2.4.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.4.0
+      '@peculiar/asn1-x509': 2.4.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-rsa@2.4.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.4.0
+      '@peculiar/asn1-x509': 2.4.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-schema@2.4.0':
+    dependencies:
+      asn1js: 3.0.6
+      pvtsutils: 1.3.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-x509@2.4.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.4.0
+      asn1js: 3.0.6
+      pvtsutils: 1.3.6
+      tslib: 2.8.1
+
   '@reduxjs/toolkit@2.8.2(react-redux@9.2.0(@types/react@19.1.11)(react@19.1.0)(redux@5.0.1))(react@19.1.0)':
     dependencies:
       '@standard-schema/spec': 1.0.0
@@ -3895,6 +3977,18 @@ snapshots:
   '@rtsao/scc@1.1.0': {}
 
   '@rushstack/eslint-patch@1.12.0': {}
+
+  '@simplewebauthn/browser@13.1.2': {}
+
+  '@simplewebauthn/server@13.1.2':
+    dependencies:
+      '@hexagon/base64': 1.1.28
+      '@levischuck/tiny-cbor': 0.2.11
+      '@peculiar/asn1-android': 2.4.0
+      '@peculiar/asn1-ecc': 2.4.0
+      '@peculiar/asn1-rsa': 2.4.0
+      '@peculiar/asn1-schema': 2.4.0
+      '@peculiar/asn1-x509': 2.4.0
 
   '@smithy/abort-controller@4.0.5':
     dependencies:
@@ -4574,6 +4668,12 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
+
+  asn1js@3.0.6:
+    dependencies:
+      pvtsutils: 1.3.6
+      pvutils: 1.1.3
+      tslib: 2.8.1
 
   ast-types-flow@0.0.8: {}
 
@@ -5805,6 +5905,12 @@ snapshots:
       react-is: 16.13.1
 
   punycode@2.3.1: {}
+
+  pvtsutils@1.3.6:
+    dependencies:
+      tslib: 2.8.1
+
+  pvutils@1.1.3: {}
 
   qrcode@1.5.4:
     dependencies:

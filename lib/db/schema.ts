@@ -1,10 +1,12 @@
-import { pgTable, serial, text, timestamp, integer, boolean, decimal, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, timestamp, integer, boolean, decimal, pgEnum, foreignKey } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['worker', 'supervisor', 'admin'])
 export const groupStatusEnum = pgEnum('group_status', ['active', 'inactive', 'suspended'])
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late'])
 export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'approved', 'disbursed', 'failed'])
+export const attendanceMethodEnum = pgEnum('attendance_method', ['qr_code', 'fingerprint', 'both'])
 
 // Users table
 export const users = pgTable('users', {
@@ -43,6 +45,8 @@ export const workers = pgTable('workers', {
   dailyRate: decimal('daily_rate', { precision: 10, scale: 2 }),
   joinedAt: timestamp('joined_at').defaultNow(),
   isActive: boolean('is_active').default(true),
+  preferredAttendanceMethod: attendanceMethodEnum('preferred_attendance_method').default('qr_code'),
+  fingerprintEnabled: boolean('fingerprint_enabled').default(false),
 })
 
 // Attendance table
@@ -60,6 +64,8 @@ export const attendance = pgTable('attendance', {
   supervisorApproved: boolean('supervisor_approved').default(false),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow(),
+  attendanceMethod: attendanceMethodEnum('attendance_method').default('qr_code'),
+  fingerprintMatchScore: decimal('fingerprint_match_score', { precision: 5, scale: 2 }),
 })
 
 // Payments table
@@ -111,3 +117,31 @@ export const faceEmbeddings = pgTable('face_embeddings', {
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
+
+// Authenticators table for WebAuthn
+export const authenticators = pgTable('authenticators', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  credentialID: text('credential_id').unique().notNull(),
+  publicKey: text('public_key').notNull(),
+  counter: integer('counter').notNull(),
+  transports: text('transports'), // Comma-separated list
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+// Relations
+export const usersRelations = relations(users, ({ one, many }) => ({
+	worker: one(workers, {
+		fields: [users.id],
+		references: [workers.userId]
+	}),
+	authenticators: many(authenticators),
+}));
+
+export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
+    references: [users.id],
+  }),
+}));
