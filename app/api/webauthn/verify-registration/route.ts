@@ -48,14 +48,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (verification.verified && verification.registrationInfo) {
-      const { credential: cred, counter } = verification.registrationInfo;
+      const { credential: cred } = verification.registrationInfo;
 
       // Store the authenticator in the database
       await db.insert(authenticators).values({
         userId: user.id,
         credentialID: Buffer.from(cred.id).toString('base64'),
         publicKey: Buffer.from(cred.publicKey).toString('base64'),
-        counter,
+        counter: cred.counter,
         transports: credential.response.transports?.join(',') || '',
       });
 
