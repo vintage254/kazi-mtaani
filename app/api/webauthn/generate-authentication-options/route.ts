@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateAuthenticationOptions } from '@simplewebauthn/server';
+import { generateAuthenticationOptions, AuthenticatorTransport } from '@simplewebauthn/server';
 import { db } from '@/lib/db';
-import { users, authenticators } from '@/lib/db/schema';
+import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 
 // In-memory store for challenges. In a real app, use a database or session store.
 const challengeStore: { [key: string]: string } = {};
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const { userId: clerkId } = await auth();
 
   if (!clerkId || !db) {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     allowCredentials: user.authenticators.map(auth => ({
       id: auth.credentialID,
       type: 'public-key' as const,
-      transports: auth.transports ? auth.transports.split(',') as any : undefined,
+      transports: auth.transports ? auth.transports.split(',') as AuthenticatorTransport[] : undefined,
     })),
     userVerification: 'preferred',
   });

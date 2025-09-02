@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import FingerprintEnrollment from './FingerprintEnrollment'
 
 interface Worker {
@@ -55,7 +55,7 @@ export default function AttendanceMethodSettings({
         preferredAttendanceMethod: method,
       })
     } catch (err: any) {
-      setError(err.message || 'Failed to update settings')
+      setError(err instanceof Error ? err.message : 'Failed to update settings')
     } finally {
       setIsUpdating(false)
     }
@@ -99,8 +99,8 @@ export default function AttendanceMethodSettings({
         fingerprintEnabled: false,
         preferredAttendanceMethod: 'qr_code',
       })
-    } catch (err: any) {
-      setError(err.message || 'Failed to disable fingerprint')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to disable fingerprint')
     } finally {
       setIsUpdating(false)
     }

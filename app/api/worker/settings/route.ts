@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { preferredAttendanceMethod, fingerprintEnabled } = body;
 
-    const updateData: any = {};
+    const updateData: Partial<typeof workers.$inferInsert> = {};
 
     if (preferredAttendanceMethod !== undefined) {
       if (!['qr_code', 'fingerprint', 'both'].includes(preferredAttendanceMethod)) {

@@ -53,9 +53,9 @@ export default function FingerprintAuthentication({
       } else {
         throw new Error(verificationResult.error || 'Authentication failed')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fingerprint authentication error:', err)
-      const errorMessage = err.message || 'Failed to authenticate with fingerprint'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to authenticate with fingerprint'
       setError(errorMessage)
       onAuthenticationError?.(errorMessage)
     } finally {

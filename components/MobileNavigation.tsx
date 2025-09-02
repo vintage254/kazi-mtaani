@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import Link from 'next/link'
@@ -103,7 +103,7 @@ export default function MobileNavigation({ worker, currentPath }: MobileNavigati
             </div>
             
             <nav className="py-2">
-              {navigationItems.map((item, index) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}

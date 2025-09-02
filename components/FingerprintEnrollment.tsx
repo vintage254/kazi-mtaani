@@ -57,9 +57,9 @@ export default function FingerprintEnrollment({
       } else {
         throw new Error(verificationResult.error || 'Registration failed')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fingerprint enrollment error:', err)
-      setError(err.message || 'Failed to enroll fingerprint')
+      setError(err instanceof Error ? err.message : 'Failed to enroll fingerprint')
     } finally {
       setIsEnrolling(false)
     }

@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
           .set({ counter: verification.authenticationInfo.newCounter })
           .where(eq(authenticators.id, authenticator.id))
 
-      } catch (error) {
+      } catch {
         return NextResponse.json(
           { error: 'Fingerprint verification failed' },
           { status: 401 }

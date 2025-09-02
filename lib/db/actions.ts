@@ -507,7 +507,6 @@ export async function cleanupDuplicateWorkers() {
       })
 
       // Keep the first one (oldest active), delete the rest
-      const keepWorker = sortedWorkers[0]
       const deleteWorkers = sortedWorkers.slice(1)
 
       for (const workerToDelete of deleteWorkers) {
