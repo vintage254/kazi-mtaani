@@ -188,8 +188,8 @@ export async function POST(request: NextRequest) {
           expectedOrigin,
           expectedRPID: rpID,
           credential: {
-            id: new Uint8Array(Buffer.from(authenticator.credentialID, 'base64')),
-            publicKey: new Uint8Array(Buffer.from(authenticator.publicKey, 'base64')),
+            id: Uint8Array.from(Buffer.from(authenticator.credentialID, 'base64')),
+            publicKey: Uint8Array.from(Buffer.from(authenticator.publicKey, 'base64')),
             counter: authenticator.counter,
             transports: authenticator.transports ? JSON.parse(authenticator.transports) as AuthenticatorTransport[] : undefined,
           },
