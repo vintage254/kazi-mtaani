@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import WorkerSidebar from '@/components/WorkerSidebar'
+import MobileNavigation from '@/components/MobileNavigation'
+import { useIsMobile } from '@/lib/utils/use-is-mobile'
 import Image from 'next/image'
 
 interface Worker {
@@ -47,6 +49,7 @@ export default function WorkerProfileClient({ worker, user, workerData }: Worker
     email: user.email,
     phone: user.phone || ''
   })
+  const isMobile = useIsMobile()
 
   const handleSave = () => {
     // TODO: Implement profile update functionality
@@ -55,14 +58,24 @@ export default function WorkerProfileClient({ worker, user, workerData }: Worker
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <WorkerSidebar 
-        worker={worker}
-        notifications={0}
-      />
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <WorkerSidebar 
+          worker={worker}
+          notifications={0}
+        />
+      )}
+
+      {/* Mobile Navigation */}
+      {isMobile && (
+        <MobileNavigation 
+          worker={worker}
+          currentPath="/worker/profile"
+        />
+      )}
 
       {/* Main Content */}
-      <div className="ml-64 p-8 min-h-screen">
+      <div className={`${isMobile ? 'pt-16 pb-20 px-4' : 'ml-64 p-8'} min-h-screen`}>
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

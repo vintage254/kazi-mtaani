@@ -50,7 +50,7 @@ export default function MobileNavigation({ worker, currentPath }: MobileNavigati
     { name: 'Dashboard', href: '/worker/dashboard', icon: '🏠' },
     { name: 'Attendance', href: '/worker/attendance', icon: '📋' },
     { name: 'Groups', href: '/worker/groups', icon: '👥' },
-    { name: 'Settings', href: '/worker/settings', icon: '⚙️' },
+    { name: 'Profile', href: '/worker/profile', icon: '👤' },
   ]
 
   return (

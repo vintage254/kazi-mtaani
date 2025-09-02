@@ -1,6 +1,8 @@
 'use client'
 
 import WorkerSidebar from '@/components/WorkerSidebar'
+import MobileNavigation from '@/components/MobileNavigation'
+import { useIsMobile } from '@/lib/utils/use-is-mobile'
 import Image from 'next/image'
 
 interface Worker {
@@ -47,55 +49,90 @@ interface WorkerGroupsClientProps {
 }
 
 export default function WorkerGroupsClient({ worker, groupDetails, currentUserId }: WorkerGroupsClientProps) {
+  const isMobile = useIsMobile()
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <WorkerSidebar 
-        worker={worker}
-        notifications={0}
-      />
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <WorkerSidebar 
+          worker={worker}
+          notifications={0}
+        />
+      )}
+
+      {/* Mobile Navigation */}
+      {isMobile && (
+        <MobileNavigation 
+          worker={worker}
+          currentPath="/worker/groups"
+        />
+      )}
 
       {/* Main Content */}
-      <div className="ml-64 p-8 min-h-screen">
+      <div className={`${isMobile ? 'pt-16 pb-20 px-4' : 'ml-64 p-8'} min-h-screen`}>
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Group</h1>
-              <p className="text-gray-600 mt-1">View your team information and group performance.</p>
+        <div className="mb-6 md:mb-8">
+          <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between'}`}>
+            <div className="min-w-0 flex-1">
+              <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 break-words`}>
+                My Group
+              </h1>
+              <p className="text-gray-600 mt-1 text-sm md:text-base break-words">
+                View your team information and group performance.
+              </p>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>{worker.status}</span>
+            <div className={`flex items-center space-x-2 text-sm text-gray-600 ${isMobile ? 'self-start' : ''}`}>
+              <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span className="whitespace-nowrap">{worker.status}</span>
             </div>
           </div>
         </div>
 
         {/* Group Header */}
         {groupDetails ? (
-          <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 mb-8">
+            <div className={`${isMobile ? 'space-y-4' : 'flex items-start justify-between'}`}>
+              <div className={`${isMobile ? 'space-y-3' : 'flex items-center space-x-4'}`}>
+                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{groupDetails.group.groupName || 'No Group'}</h2>
-                  <p className="text-gray-600">{groupDetails.group.groupDescription || 'Community development and maintenance activities'}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      groupDetails.group.groupStatus === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {groupDetails.group.groupStatus || 'Active'}
-                    </span>
-                    <span className="text-sm text-gray-500">{groupDetails.stats.totalMembers} members</span>
-                    <span className="text-sm text-gray-500">Supervisor: {groupDetails.group.supervisorName || 'No Supervisor'}</span>
-                    <p className="text-sm text-gray-600">You are assigned to this work group. Coordinate with your supervisor and team members for daily tasks.</p>
+                <div className="min-w-0 flex-1">
+                  <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 break-words`}>
+                    {groupDetails.group.groupName || 'No Group'}
+                  </h2>
+                  <p className="text-gray-600 text-sm md:text-base mt-1 break-words">
+                    {groupDetails.group.groupDescription || 'Community development and maintenance activities'}
+                  </p>
+                  <div className={`${isMobile ? 'space-y-2' : 'flex items-center space-x-4'} mt-3`}>
+                    <div className={`${isMobile ? 'flex flex-wrap gap-2' : 'flex items-center space-x-4'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        groupDetails.group.groupStatus === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {groupDetails.group.groupStatus || 'Active'}
+                      </span>
+                      <span className="text-sm text-gray-500 whitespace-nowrap">
+                        {groupDetails.stats.totalMembers} members
+                      </span>
+                      <span className="text-sm text-gray-500 break-words">
+                        Supervisor: {groupDetails.group.supervisorName || 'No Supervisor'}
+                      </span>
+                    </div>
+                    {isMobile && (
+                      <p className="text-sm text-gray-600 break-words leading-relaxed">
+                        You are assigned to this work group. Coordinate with your supervisor and team members for daily tasks.
+                      </p>
+                    )}
                   </div>
+                  {!isMobile && (
+                    <p className="text-sm text-gray-600 mt-2 break-words">
+                      You are assigned to this work group. Coordinate with your supervisor and team members for daily tasks.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
