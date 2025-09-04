@@ -4,9 +4,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
-
-// In-memory store for challenges. In a real app, use a database or a session store.
-const challengeStore: { [key: string]: string } = {};
+import { challengeStore } from '@/lib/webauthn-challenge-store';
 
 export async function POST() {
   const { userId: clerkId } = await auth();
@@ -46,8 +44,8 @@ export async function POST() {
     },
   });
 
-  // Store the challenge temporarily
-  challengeStore[user.id] = options.challenge;
+  // Store the challenge using the shared store
+  challengeStore.set(user.id.toString(), options.challenge);
 
   return NextResponse.json(options);
 }

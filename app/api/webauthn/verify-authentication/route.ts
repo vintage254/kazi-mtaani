@@ -4,9 +4,7 @@ import { db } from '@/lib/db';
 import { users, authenticators } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
-
-// Import the challenge store from the authentication options endpoint
-const challengeStore: { [key: string]: string } = {};
+import { challengeStore } from '@/lib/webauthn-challenge-store';
 
 export async function POST(req: NextRequest) {
   const { userId: clerkId } = await auth();
@@ -33,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing credential data' }, { status: 400 });
   }
 
-  const expectedChallenge = challengeStore[user.id];
+  const expectedChallenge = challengeStore.get(user.id.toString());
   if (!expectedChallenge) {
     return NextResponse.json({ error: 'No challenge found for user' }, { status: 400 });
   }
@@ -71,8 +69,8 @@ export async function POST(req: NextRequest) {
         .set({ counter: verification.authenticationInfo.newCounter })
         .where(eq(authenticators.id, authenticator.id));
 
-      // Clean up the challenge
-      delete challengeStore[user.id];
+      // Clean up the challenge using the shared store
+      challengeStore.delete(user.id.toString());
 
       return NextResponse.json({ 
         verified: true,
