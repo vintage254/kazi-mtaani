@@ -308,13 +308,37 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             {showFingerprintAuth && worker.fingerprintEnabled && (
               <div className="mt-6">
                 <FingerprintAuthentication
-                  onAuthenticationSuccess={() => {
-                    // Handle successful fingerprint authentication
-                    alert('Fingerprint authentication successful! (This would trigger check-in/out in production)')
-                    setShowFingerprintAuth(false)
+                  onAuthenticationSuccess={async () => {
+                    // Log attendance after successful fingerprint authentication
+                    try {
+                      const response = await fetch('/api/worker/attendance/checkin', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          method: 'fingerprint',
+                          workerId: worker.workerId
+                        })
+                      })
+                      
+                      if (response.ok) {
+                        alert('✓ Check-in successful! Your attendance has been logged.')
+                        setShowFingerprintAuth(false)
+                        // Refresh attendance data
+                        fetchWorkerData()
+                      } else {
+                        const error = await response.json()
+                        alert(`Check-in failed: ${error.message || 'Unknown error'}`)
+                      }
+                    } catch (error) {
+                      console.error('Check-in error:', error)
+                      alert('Failed to log attendance. Please try again.')
+                    }
                   }}
                   onAuthenticationError={(error) => {
                     console.error('Fingerprint auth error:', error)
+                    alert(`Fingerprint authentication failed: ${error}`)
                   }}
                 />
               </div>
