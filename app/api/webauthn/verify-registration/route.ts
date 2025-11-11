@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing credential data' }, { status: 400 });
   }
 
-  const expectedChallenge = challengeStore.get(user.id.toString());
+  const expectedChallenge = await challengeStore.get(user.id.toString());
   if (!expectedChallenge) {
     return NextResponse.json({ error: 'No challenge found for user' }, { status: 400 });
   }
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         .where(eq(workers.userId, user.id));
 
       // Clean up the challenge using the shared store
-      challengeStore.delete(user.id.toString());
+      await challengeStore.delete(user.id.toString());
 
       return NextResponse.json({ 
         verified: true,

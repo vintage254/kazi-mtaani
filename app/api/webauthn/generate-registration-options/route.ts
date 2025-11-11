@@ -45,7 +45,7 @@ export async function POST() {
   });
 
   // Store the challenge using the shared store
-  challengeStore.set(user.id.toString(), options.challenge);
+  await challengeStore.set(user.id.toString(), options.challenge);
 
   return NextResponse.json(options);
 }

@@ -55,7 +55,21 @@ export default function FingerprintAuthentication({
       }
     } catch (err: unknown) {
       console.error('Fingerprint authentication error:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Failed to authenticate with fingerprint'
+      let errorMessage = 'Failed to authenticate with fingerprint'
+      
+      if (err instanceof Error) {
+        // Provide more user-friendly error messages
+        if (err.message.includes('timed out') || err.message.includes('timeout')) {
+          errorMessage = 'Authentication timed out. Please try again and respond to the fingerprint prompt quickly.'
+        } else if (err.message.includes('not allowed') || err.message.includes('NotAllowedError')) {
+          errorMessage = 'Authentication was cancelled or not allowed. Please try again and allow fingerprint access.'
+        } else if (err.message.includes('No authenticators registered')) {
+          errorMessage = 'No fingerprint enrolled. Please enroll your fingerprint first.'
+        } else {
+          errorMessage = err.message
+        }
+      }
+      
       setError(errorMessage)
       onAuthenticationError?.(errorMessage)
     } finally {

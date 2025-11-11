@@ -32,16 +32,23 @@ export async function POST() {
 
   const options = await generateAuthenticationOptions({
     rpID,
-    allowCredentials: user.authenticators.map(auth => ({
-      id: auth.credentialID,
-      type: 'public-key' as const,
-      transports: auth.transports ? auth.transports.split(',') as AuthenticatorTransport[] : undefined,
-    })),
+    allowCredentials: user.authenticators.map(auth => {
+      // Convert base64 to base64url format
+      const base64urlId = Buffer.from(auth.credentialID, 'base64')
+        .toString('base64url');
+      
+      return {
+        id: base64urlId,
+        type: 'public-key' as const,
+        transports: auth.transports ? auth.transports.split(',') as AuthenticatorTransport[] : undefined,
+      };
+    }),
     userVerification: 'preferred',
+    timeout: 60000, // 60 seconds timeout
   });
 
   // Store the challenge using the shared store
-  challengeStore.set(user.id.toString(), options.challenge);
+  await challengeStore.set(user.id.toString(), options.challenge);
 
   return NextResponse.json(options);
 }
