@@ -32,11 +32,17 @@ export async function POST() {
 
   const options = await generateAuthenticationOptions({
     rpID,
-    allowCredentials: user.authenticators.map(auth => ({
-      id: auth.credentialID, // Already in correct format
-      type: 'public-key' as const,
-      transports: auth.transports ? auth.transports.split(',') as AuthenticatorTransport[] : undefined,
-    })),
+    allowCredentials: user.authenticators.map(auth => {
+      // Convert base64 (stored format) to base64url (WebAuthn format)
+      const credentialIdBuffer = Buffer.from(auth.credentialID, 'base64');
+      const credentialIdBase64url = credentialIdBuffer.toString('base64url');
+      
+      return {
+        id: credentialIdBase64url,
+        type: 'public-key' as const,
+        transports: auth.transports ? auth.transports.split(',') as AuthenticatorTransport[] : undefined,
+      };
+    }),
     userVerification: 'preferred',
     timeout: 60000, // 60 seconds timeout
   });
