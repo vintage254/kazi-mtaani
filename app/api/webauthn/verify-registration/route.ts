@@ -48,9 +48,12 @@ export async function POST(req: NextRequest) {
       const { credential: cred } = verification.registrationInfo;
 
       // Store the authenticator in the database
+      // Store credential ID as base64url for consistency with WebAuthn spec
+      const credentialIDBase64 = Buffer.from(cred.id).toString('base64');
+      
       await db.insert(authenticators).values({
         userId: user.id,
-        credentialID: Buffer.from(cred.id).toString('base64'),
+        credentialID: credentialIDBase64,
         publicKey: Buffer.from(cred.publicKey).toString('base64'),
         counter: cred.counter,
         transports: credential.response.transports?.join(',') || '',
