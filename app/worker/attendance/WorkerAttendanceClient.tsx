@@ -3,10 +3,10 @@
 import WorkerSidebar from '@/components/WorkerSidebar'
 import MobileNavigation from '@/components/MobileNavigation'
 import FingerprintAuthentication from '@/components/FingerprintAuthentication'
+import FaceAuthentication from '@/components/FaceAuthentication'
 import AttendanceMethodSettings from '@/components/AttendanceMethodSettings'
 import { useIsMobile } from '@/lib/utils/use-is-mobile'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 
 interface Worker {
   id: number
@@ -17,8 +17,9 @@ interface Worker {
   group: string
   supervisor: string
   workerId?: number
-  preferredAttendanceMethod: 'qr_code' | 'fingerprint' | 'both'
+  preferredAttendanceMethod: 'fingerprint' | 'face'
   fingerprintEnabled: boolean
+  faceEnabled: boolean
 }
 
 interface AttendanceRecord {
@@ -42,30 +43,15 @@ interface WeeklyStats {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WorkerAttendanceClientProps {}
 
-interface QRCodeData {
-  qrCodeDataUrl: string
-  qrData: {
-    workerId: number
-    workerName: string
-    groupId: number | null
-    groupName: string | null
-    groupLocation: string | null
-    expirationDate: string
-    timestamp: string
-    securityHash: string
-  }
-}
-
 export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) {
   const isMobile = useIsMobile()
   const [worker, setWorker] = useState<Worker | null>(null)
-  const [qrCode, setQrCode] = useState<QRCodeData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showQRCode, setShowQRCode] = useState(false)
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([])
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showFingerprintAuth, setShowFingerprintAuth] = useState(false)
+  const [showFaceAuth, setShowFaceAuth] = useState(false)
 
   const fetchWorkerData = async () => {
     try {
@@ -85,30 +71,11 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
           }
         })
       ])
-      
+
       if (statsResponse.ok) {
         const data = await statsResponse.json()
         setWorker(data.worker)
         setWeeklyStats(data.stats)
-        
-        // Fetch QR code if worker has ID
-        if (data.worker?.workerId) {
-          try {
-            const qrResponse = await fetch(`/api/worker/qr/${data.worker.workerId}`, {
-              cache: 'no-store',
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-              }
-            })
-            if (qrResponse.ok) {
-              const qrData = await qrResponse.json()
-              setQrCode(qrData)
-            }
-          } catch (error) {
-            console.error('Error fetching QR code:', error)
-          }
-        }
       }
 
       if (activityResponse.ok) {
@@ -126,54 +93,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
     fetchWorkerData()
   }, [])
 
-  const handleDownloadQR = () => {
-    if (qrCode && worker) {
-      const link = document.createElement('a')
-      link.download = `${worker.name}-attendance-qr.png`
-      link.href = qrCode.qrCodeDataUrl
-      link.click()
-    }
-  }
-
-  const handlePrintQR = () => {
-    if (qrCode && worker) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Attendance QR Code - ${worker.name}</title>
-              <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-                .qr-container { margin: 20px 0; }
-                .worker-info { margin-bottom: 20px; }
-                h1 { color: #333; }
-                p { color: #666; margin: 5px 0; }
-                img { border: 2px solid #ddd; padding: 10px; }
-              </style>
-            </head>
-            <body>
-              <div class="worker-info">
-                <h1>Attendance QR Code</h1>
-                <p><strong>Worker:</strong> ${worker.name}</p>
-                <p><strong>Group:</strong> ${worker.group}</p>
-                <p><strong>Supervisor:</strong> ${worker.supervisor}</p>
-                <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
-              </div>
-              <div class="qr-container">
-                <img src="${qrCode.qrCodeDataUrl}" alt="Attendance QR Code" />
-              </div>
-              <p><small>Present this QR code at your worksite for attendance scanning</small></p>
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
-        printWindow.print()
-      }
-    }
-  }
-
-    if (loading || !worker) {
+  if (loading || !worker) {
     return (
       <div className="min-h-screen bg-gray-100">
         <div className="md:pl-64 p-4 md:p-8">
@@ -192,12 +112,12 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
   }
 
   return (
-        <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       {/* Conditional Navigation */}
       {isMobile ? (
         <MobileNavigation worker={worker} />
       ) : (
-        <WorkerSidebar 
+        <WorkerSidebar
           worker={worker}
           notifications={0}
         />
@@ -227,89 +147,49 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check In?</h2>
-          <p className="text-gray-600 mb-6">You haven&apos;t checked in yet today. Don&apos;t forget to scan your QR code when you arrive at work!</p>
-          
+          <p className="text-gray-600 mb-6">Use fingerprint or face recognition to check in. Your GPS location will be verified automatically.</p>
+
           <div className="space-y-4">
             {/* Attendance Method Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button 
-                onClick={() => setShowQRCode(!showQRCode)}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-              >
-                {showQRCode ? 'Hide QR Code' : 'Show QR Code'}
-              </button>
-              
-              {worker.fingerprintEnabled && (worker.preferredAttendanceMethod === 'fingerprint' || worker.preferredAttendanceMethod === 'both') && (
-                <button 
-                  onClick={() => setShowFingerprintAuth(!showFingerprintAuth)}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              {worker.fingerprintEnabled && (
+                <button
+                  onClick={() => { setShowFingerprintAuth(!showFingerprintAuth); setShowFaceAuth(false) }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                 >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                  </svg>
                   {showFingerprintAuth ? 'Hide Fingerprint' : 'Use Fingerprint'}
                 </button>
               )}
-              
-              <button 
+
+              {worker.faceEnabled && (
+                <button
+                  onClick={() => { setShowFaceAuth(!showFaceAuth); setShowFingerprintAuth(false) }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  {showFaceAuth ? 'Hide Face' : 'Use Face'}
+                </button>
+              )}
+
+              <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
               >
                 Settings
               </button>
             </div>
-            
-            {qrCode && showQRCode && (
-              <div className="mt-6 p-6 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Attendance QR Code</h3>
-                <div className="flex flex-col items-center space-y-4">
-                  <Image 
-                    src={qrCode.qrCodeDataUrl} 
-                    alt="Attendance QR Code" 
-                    width={200}
-                    height={200}
-                    className="border-2 border-gray-300 rounded-lg p-2 bg-white"
-                  />
-                  <div className="text-center text-sm text-gray-600">
-                    <p><strong>Worker:</strong> {qrCode.qrData.workerName}</p>
-                    <p><strong>Group:</strong> {qrCode.qrData.groupName || 'No Group'}</p>
-                    <p><strong>Location:</strong> {qrCode.qrData.groupLocation || 'Not Assigned'}</p>
-                    <p><strong>Valid Until:</strong> {new Date(qrCode.qrData.expirationDate).toLocaleDateString()}</p>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={handleDownloadQR}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Download QR
-                    </button>
-                    <button
-                      onClick={handlePrintQR}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Print QR
-                    </button>
-                  </div>
-                  <p className="text-sm text-gray-600">You&apos;re currently checked in. Remember to check out when you finish work.</p>
-                </div>
-              </div>
-            )}
-            
-            {loading && (
-              <div className="text-gray-500 text-sm">
-                Loading your QR code...
-              </div>
-            )}
-            
-            {!loading && !qrCode && (
-              <div className="text-red-500 text-sm">
-                Unable to generate QR code. Please contact your supervisor.
-              </div>
-            )}
-            
+
             {/* Fingerprint Authentication */}
             {showFingerprintAuth && worker.fingerprintEnabled && (
               <div className="mt-6">
                 <FingerprintAuthentication
                   onAuthenticationSuccess={async () => {
-                    // Log attendance after successful fingerprint authentication
                     try {
                       const response = await fetch('/api/worker/attendance/checkin', {
                         method: 'POST',
@@ -321,11 +201,10 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                           workerId: worker.workerId
                         })
                       })
-                      
+
                       if (response.ok) {
                         alert('✓ Check-in successful! Your attendance has been logged.')
                         setShowFingerprintAuth(false)
-                        // Refresh attendance data
                         fetchWorkerData()
                       } else {
                         const error = await response.json()
@@ -343,7 +222,24 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                 />
               </div>
             )}
-            
+
+            {/* Face Authentication */}
+            {showFaceAuth && worker.faceEnabled && (
+              <div className="mt-6">
+                <FaceAuthentication
+                  workerId={worker.workerId || worker.id}
+                  onAuthenticationSuccess={(result) => {
+                    alert(`Face ${result.action} successful! (${Math.round(result.matchScore)}% match)`)
+                    setShowFaceAuth(false)
+                    fetchWorkerData()
+                  }}
+                  onAuthenticationError={(error) => {
+                    console.error('Face auth error:', error)
+                  }}
+                />
+              </div>
+            )}
+
             {/* Settings Panel */}
             {showSettings && (
               <div className="mt-6">
@@ -351,13 +247,15 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                   worker={{
                     id: worker.id,
                     preferredAttendanceMethod: worker.preferredAttendanceMethod,
-                    fingerprintEnabled: worker.fingerprintEnabled
+                    fingerprintEnabled: worker.fingerprintEnabled,
+                    faceEnabled: worker.faceEnabled,
                   }}
                   onSettingsUpdate={(updatedWorker) => {
                     setWorker({
                       ...worker,
                       preferredAttendanceMethod: updatedWorker.preferredAttendanceMethod,
-                      fingerprintEnabled: updatedWorker.fingerprintEnabled
+                      fingerprintEnabled: updatedWorker.fingerprintEnabled,
+                      faceEnabled: updatedWorker.faceEnabled,
                     })
                     setShowSettings(false)
                   }}
@@ -365,13 +263,13 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
               </div>
             )}
           </div>
-          
+
           <div className="mt-6 text-sm text-gray-500">
-            <p>Today: {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            <p>Today: {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}</p>
             <p>Status: <span className="text-red-600 font-medium">Not Checked In</span></p>
           </div>
@@ -407,7 +305,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm font-medium text-blue-900">Location</p>
                 <p className="text-sm text-blue-700">{worker.group}</p>
@@ -427,7 +325,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
                     const dayName = days[index] || new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' })
                     const isPresent = record.activity === 'present'
-                    
+
                     return (
                       <div key={record.id} className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">{dayName}</span>
@@ -435,21 +333,21 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                           <div className={`w-2 h-2 rounded-full ${isPresent ? 'bg-green-400' : 'bg-red-400'}`}></div>
                           <span className={`text-sm font-medium ${isPresent ? 'text-gray-900' : 'text-gray-500'}`}>
                             {isPresent ? (
-                              record.checkInTime && record.checkOutTime ? 
-                                `${new Date(record.checkInTime).toLocaleTimeString('en-US', { 
-                                  hour: 'numeric', 
-                                  minute: '2-digit', 
-                                  hour12: true 
-                                })} - ${new Date(record.checkOutTime).toLocaleTimeString('en-US', { 
-                                  hour: 'numeric', 
-                                  minute: '2-digit', 
-                                  hour12: true 
+                              record.checkInTime && record.checkOutTime ?
+                                `${new Date(record.checkInTime).toLocaleTimeString('en-US', {
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })} - ${new Date(record.checkOutTime).toLocaleTimeString('en-US', {
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true
                                 })}` :
-                                record.checkInTime ? 
-                                  `${new Date(record.checkInTime).toLocaleTimeString('en-US', { 
-                                    hour: 'numeric', 
-                                    minute: '2-digit', 
-                                    hour12: true 
+                                record.checkInTime ?
+                                  `${new Date(record.checkInTime).toLocaleTimeString('en-US', {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
                                   })} - In Progress` :
                                   'Present'
                             ) : 'Absent'}
@@ -465,7 +363,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                   </div>
                 )}
               </div>
-              
+
               <div className="mt-6 p-4 bg-green-50 rounded-lg">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-green-900">Attendance Rate</span>
@@ -501,33 +399,33 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                   attendanceData.map((record) => {
                     const checkInTime = record.checkInTime ? new Date(record.checkInTime) : null
                     const checkOutTime = record.checkOutTime ? new Date(record.checkOutTime) : null
-                    const hoursWorked = checkInTime && checkOutTime ? 
-                      ((checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60)).toFixed(1) : 
+                    const hoursWorked = checkInTime && checkOutTime ?
+                      ((checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60)).toFixed(1) :
                       checkInTime ? 'In Progress' : '-'
-                    
+
                     const isPresent = record.activity === 'present'
-                    
+
                     return (
                       <tr key={record.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {new Date(record.date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
+                          {new Date(record.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
                           })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {checkInTime ? checkInTime.toLocaleTimeString('en-US', { 
-                            hour: 'numeric', 
-                            minute: '2-digit', 
-                            hour12: true 
+                          {checkInTime ? checkInTime.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
                           }) : '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {checkOutTime ? checkOutTime.toLocaleTimeString('en-US', { 
-                            hour: 'numeric', 
-                            minute: '2-digit', 
-                            hour12: true 
+                          {checkOutTime ? checkOutTime.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
                           }) : checkInTime ? 'In Progress' : '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -535,7 +433,7 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            isPresent ? 'bg-green-100 text-green-800' : 
+                            isPresent ? 'bg-green-100 text-green-800' :
                             record.activity === 'late' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-red-100 text-red-800'
                           }`}>

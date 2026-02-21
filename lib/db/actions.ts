@@ -11,9 +11,6 @@ function ensureDb() {
 }
 import { users, workers, groups, attendance, alerts } from './schema'
 import { eq, desc, count, and, gte, lte, isNull } from 'drizzle-orm'
-import QRCode from 'qrcode'
-import crypto from 'crypto'
-import nodemailer from 'nodemailer'
 
 // Server action to get user by clerk ID
 export async function getUserByClerkIdAction(clerkId: string) {
@@ -524,294 +521,21 @@ export async function cleanupDuplicateWorkers() {
   return duplicatesRemoved
 }
 
-// Generate QR code for worker attendance
-export async function generateWorkerQRCode(workerId: number) {
-  const worker = await ensureDb()
-    .select({
-      id: workers.id,
-      userId: workers.userId,
-      groupId: workers.groupId,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      groupName: groups.name,
-      groupLocation: groups.location
-    })
-    .from(workers)
-    .innerJoin(users, eq(workers.userId, users.id))
-    .leftJoin(groups, eq(workers.groupId, groups.id))
-    .where(eq(workers.id, workerId))
-    .limit(1)
-
-  if (!worker[0]) {
-    throw new Error('Worker not found')
-  }
-
-  const workerData = worker[0]
-  
-  // Create QR code data with security hash
-  const qrData = {
-    workerId: workerData.id,
-    workerName: `${workerData.firstName || ''} ${workerData.lastName || ''}`.trim(),
-    groupId: workerData.groupId,
-    groupName: workerData.groupName,
-    groupLocation: workerData.groupLocation,
-    expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-    timestamp: new Date().toISOString(),
-    securityHash: crypto.createHash('sha256')
-      .update(`${workerData.id}-${workerData.groupId}-${process.env.QR_SECRET || 'default-secret'}`)
-      .digest('hex')
-  }
-
-  // Generate QR code as data URL
-  const qrCodeDataUrl = await QRCode.toDataURL(JSON.stringify(qrData), {
-    width: 300,
-    margin: 2,
-    color: {
-      dark: '#000000',
-      light: '#FFFFFF'
-    }
-  })
-
-  return {
-    qrCodeDataUrl,
-    qrData
-  }
-}
-
-// Get worker QR code data
-export async function getWorkerQRCode(workerId: number) {
-  try {
-    return await generateWorkerQRCode(workerId)
-  } catch (error) {
-    console.error('Error generating QR code:', error)
-    return null
-  }
-}
-
-// Email configuration
-const createEmailTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail', // You can change this to your preferred email service
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    }
-  })
-}
-
-// Send QR code via email to worker
-export async function sendQRCodeEmail(workerId: number, workerEmail: string) {
-  try {
-    const qrCodeData = await generateWorkerQRCode(workerId)
-    if (!qrCodeData) {
-      throw new Error('Failed to generate QR code')
-    }
-
-    const transporter = createEmailTransporter()
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: workerEmail,
-      subject: 'Your Attendance QR Code - Kazi Mtaani',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Your Attendance QR Code</h2>
-          
-          <p>Dear ${qrCodeData.qrData.workerName},</p>
-          
-          <p>You have been assigned to a work group. Please find your attendance QR code below:</p>
-          
-          <div style="text-align: center; margin: 20px 0;">
-            <img src="cid:qrcode" alt="Attendance QR Code" style="border: 2px solid #ddd; padding: 10px;" />
-          </div>
-          
-          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="margin-top: 0;">Assignment Details:</h3>
-            <p><strong>Worker:</strong> ${qrCodeData.qrData.workerName}</p>
-            <p><strong>Group:</strong> ${qrCodeData.qrData.groupName || 'Not assigned'}</p>
-            <p><strong>Location:</strong> ${qrCodeData.qrData.groupLocation || 'Not specified'}</p>
-            <p><strong>Valid Until:</strong> ${new Date(qrCodeData.qrData.expirationDate).toLocaleDateString()}</p>
-          </div>
-          
-          <div style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #1976d2;">Instructions:</h3>
-            <ol>
-              <li>Save this QR code to your phone or print it out</li>
-              <li>Present this QR code at the worksite scanner for attendance</li>
-              <li>Make sure to arrive on time for your scheduled work</li>
-              <li>Contact your supervisor if you have any questions</li>
-            </ol>
-          </div>
-          
-          <p style="color: #666; font-size: 12px;">
-            This is an automated message from Kazi Mtaani. Please do not reply to this email.
-          </p>
-        </div>
-      `,
-      attachments: [
-        {
-          filename: 'qr-code.png',
-          content: qrCodeData.qrCodeDataUrl.split(',')[1],
-          encoding: 'base64',
-          cid: 'qrcode'
-        }
-      ]
-    }
-
-    await transporter.sendMail(mailOptions)
-    console.log(`QR code email sent to ${workerEmail}`)
-    return true
-  } catch (error) {
-    console.error('Error sending QR code email:', error)
-    return false
-  }
-}
-
-// Send QR codes to all workers in a group
-export async function sendQRCodesToGroupWorkers(groupId: number) {
-  try {
-    const groupWorkers = await ensureDb()
-      .select({
-        workerId: workers.id,
-        workerName: users.firstName,
-        workerLastName: users.lastName,
-        email: users.email,
-        groupName: groups.name
-      })
-      .from(workers)
-      .innerJoin(users, eq(workers.userId, users.id))
-      .innerJoin(groups, eq(workers.groupId, groups.id))
-      .where(eq(workers.groupId, groupId))
-
-    const emailPromises = groupWorkers.map(worker => {
-      if (worker.email) {
-        return sendQRCodeEmail(worker.workerId, worker.email)
-      }
-      return Promise.resolve(false)
-    })
-
-    const results = await Promise.all(emailPromises)
-    const successCount = results.filter(result => result).length
-    
-    console.log(`Sent QR codes to ${successCount}/${groupWorkers.length} workers in group`)
-    return { success: successCount, total: groupWorkers.length }
-  } catch (error) {
-    console.error('Error sending QR codes to group workers:', error)
-    return { success: 0, total: 0 }
-  }
-}
-
-// Validate QR code and log attendance from external scanner
-export async function validateAndLogAttendance(qrData: string, scannerId: string, scannerLocation?: string) {
-  try {
-    // Parse QR code data
-    const parsedQRData = JSON.parse(qrData)
-    const { workerId, groupId, securityHash, expirationDate } = parsedQRData
-
-    // Validate QR code security and expiration
-    if (new Date(expirationDate) < new Date()) {
-      return { success: false, error: 'QR code has expired' }
-    }
-
-    const expectedHash = crypto.createHash('sha256')
-      .update(`${workerId}-${groupId}-${process.env.QR_SECRET || 'default-secret'}`)
-      .digest('hex')
-
-    if (securityHash !== expectedHash) {
-      return { success: false, error: 'Invalid QR code' }
-    }
-
-    // Get worker details
-    const worker = await ensureDb()
-      .select({
-        id: workers.id,
-        userId: workers.userId,
-        groupId: workers.groupId,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        groupName: groups.name,
-        groupLocation: groups.location
-      })
-      .from(workers)
-      .innerJoin(users, eq(workers.userId, users.id))
-      .leftJoin(groups, eq(workers.groupId, groups.id))
-      .where(eq(workers.id, workerId))
-      .limit(1)
-
-    if (!worker[0] || worker[0].groupId !== groupId) {
-      return { success: false, error: 'Worker not found or not assigned to group' }
-    }
-
-    const workerData = worker[0]
-
-    // Check for existing attendance today
-    const today = new Date().toISOString().split('T')[0]
-    const existingAttendance = await ensureDb()
-      .select()
-      .from(attendance)
-      .where(
-        and(
-          eq(attendance.workerId, workerId),
-          eq(attendance.date, today)
-        )
-      )
-      .limit(1)
-
-    const isCheckOut = existingAttendance.length > 0 && 
-                      existingAttendance[0].checkInTime && 
-                      !existingAttendance[0].checkOutTime
-
-    if (isCheckOut) {
-      // Update with check-out time
-      await ensureDb()
-        .update(attendance)
-        .set({
-          checkOutTime: new Date(),
-          notes: `Check-out via scanner ${scannerId}`
-        })
-        .where(eq(attendance.id, existingAttendance[0].id))
-    } else {
-      // Create new check-in record
-      await ensureDb().insert(attendance).values({
-        workerId: workerId,
-        date: today,
-        checkInTime: new Date(),
-        checkOutTime: null,
-        status: 'present',
-        location: scannerLocation || workerData.groupLocation || 'Worksite',
-        scannerId: scannerId,
-        notes: `Check-in via scanner ${scannerId}`
-      })
-    }
-
-    return {
-      success: true,
-      action: isCheckOut ? 'check-out' : 'check-in',
-      worker: {
-        name: `${workerData.firstName} ${workerData.lastName}`,
-        group: workerData.groupName,
-        location: workerData.groupLocation
-      }
-    }
-
-  } catch (error) {
-    console.error('Error validating and logging attendance:', error)
-    return { success: false, error: 'System error' }
-  }
-}
-
 // Create group with current supervisor as default supervisor
 export async function createGroupWithCurrentSupervisor(
   groupData: {
     name: string
     description?: string
     location: string
+    latitude?: string
+    longitude?: string
+    geofenceRadius?: number
   },
   currentUserClerkId: string
 ) {
   // Get current user info
   const currentUser = await getUserByClerkIdAction(currentUserClerkId)
-  
+
   if (!currentUser || currentUser.role !== 'supervisor') {
     throw new Error('Only supervisors can create groups')
   }
@@ -822,6 +546,9 @@ export async function createGroupWithCurrentSupervisor(
       name: groupData.name,
       description: groupData.description,
       location: groupData.location,
+      latitude: groupData.latitude || null,
+      longitude: groupData.longitude || null,
+      geofenceRadius: groupData.geofenceRadius || 100,
       supervisorId: currentUser.id, // Auto-assign current supervisor
       status: 'active',
       createdAt: new Date(),

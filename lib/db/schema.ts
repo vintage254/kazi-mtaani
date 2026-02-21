@@ -6,7 +6,7 @@ export const userRoleEnum = pgEnum('user_role', ['worker', 'supervisor', 'admin'
 export const groupStatusEnum = pgEnum('group_status', ['active', 'inactive', 'suspended'])
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late'])
 export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'approved', 'disbursed', 'failed'])
-export const attendanceMethodEnum = pgEnum('attendance_method', ['qr_code', 'fingerprint', 'both'])
+export const attendanceMethodEnum = pgEnum('attendance_method', ['fingerprint', 'face'])
 
 // Users table
 export const users = pgTable('users', {
@@ -30,6 +30,9 @@ export const groups = pgTable('groups', {
   name: text('name').notNull(),
   description: text('description'),
   location: text('location').notNull(),
+  latitude: decimal('latitude', { precision: 10, scale: 7 }),
+  longitude: decimal('longitude', { precision: 10, scale: 7 }),
+  geofenceRadius: integer('geofence_radius').default(100), // meters
   supervisorId: integer('supervisor_id').references(() => users.id),
   status: groupStatusEnum('status').default('active'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -45,8 +48,9 @@ export const workers = pgTable('workers', {
   dailyRate: decimal('daily_rate', { precision: 10, scale: 2 }),
   joinedAt: timestamp('joined_at').defaultNow(),
   isActive: boolean('is_active').default(true),
-  preferredAttendanceMethod: attendanceMethodEnum('preferred_attendance_method').default('qr_code'),
+  preferredAttendanceMethod: attendanceMethodEnum('preferred_attendance_method').default('fingerprint'),
   fingerprintEnabled: boolean('fingerprint_enabled').default(false),
+  faceEnabled: boolean('face_enabled').default(false),
 })
 
 // Attendance table
@@ -59,12 +63,15 @@ export const attendance = pgTable('attendance', {
   checkOutTime: timestamp('check_out_time'),
   status: attendanceStatusEnum('status').default('present'),
   location: text('location'),
-  scannerId: text('scanner_id'), // ID of the scanner machine used
+  checkInLatitude: decimal('check_in_latitude', { precision: 10, scale: 7 }),
+  checkInLongitude: decimal('check_in_longitude', { precision: 10, scale: 7 }),
+  gpsDistanceMeters: decimal('gps_distance_meters', { precision: 8, scale: 2 }),
+  gpsVerified: boolean('gps_verified').default(false),
   faceRecognitionScore: decimal('face_recognition_score', { precision: 5, scale: 2 }),
   supervisorApproved: boolean('supervisor_approved').default(false),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow(),
-  attendanceMethod: attendanceMethodEnum('attendance_method').default('qr_code'),
+  attendanceMethod: attendanceMethodEnum('attendance_method').default('fingerprint'),
   fingerprintMatchScore: decimal('fingerprint_match_score', { precision: 5, scale: 2 }),
 })
 

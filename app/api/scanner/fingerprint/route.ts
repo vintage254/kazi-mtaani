@@ -12,22 +12,22 @@ function ensureDb() {
   return db
 }
 
-// POST /api/scanner/fingerprint - Handle fingerprint authentication from scanner machines
+// POST /api/scanner/fingerprint - Handle fingerprint authentication
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { 
-      workerId, 
-      credential, 
-      challenge, 
-      scannerId, 
-      scannerLocation 
+    const {
+      workerId,
+      credential,
+      challenge,
+      latitude,
+      longitude,
     } = body
 
     // Validate required fields
-    if (!workerId || !credential || !challenge || !scannerId) {
+    if (!workerId || !credential || !challenge) {
       return NextResponse.json(
-        { error: 'Missing required fields: workerId, credential, challenge, scannerId' },
+        { error: 'Missing required fields: workerId, credential, challenge' },
         { status: 400 }
       )
     }
@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
         firstName: users.firstName,
         lastName: users.lastName,
         groupName: groups.name,
-        groupLocation: groups.location
+        groupLocation: groups.location,
+        groupLatitude: groups.latitude,
+        groupLongitude: groups.longitude,
+        geofenceRadius: groups.geofenceRadius,
       })
       .from(workers)
       .innerJoin(users, eq(workers.userId, users.id))
@@ -83,9 +86,9 @@ export async function POST(request: NextRequest) {
     // Find matching authenticator
     const credentialIDBuffer = Buffer.from(credential.id, 'base64url')
     const credentialIDBase64 = credentialIDBuffer.toString('base64')
-    
+
     const authenticator = userAuthenticators.find(auth => auth.credentialID === credentialIDBase64)
-    
+
     if (!authenticator) {
       return NextResponse.json(
         { error: 'Authenticator not found for this credential' },
@@ -132,8 +135,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Process attendance (same logic as QR code scanner)
-    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    // Process attendance
+    const today = new Date().toISOString().split('T')[0]
 
     const existingAttendance = await ensureDb()
       .select()
@@ -146,39 +149,35 @@ export async function POST(request: NextRequest) {
       )
       .limit(1)
 
-    // Determine if this is check-in or check-out
-    const isCheckOut = existingAttendance.length > 0 && 
-                      existingAttendance[0].checkInTime && 
+    const isCheckOut = existingAttendance.length > 0 &&
+                      existingAttendance[0].checkInTime &&
                       !existingAttendance[0].checkOutTime
 
-    const attendanceData = {
-      workerId: workerId,
-      groupId: workerData.groupId,
-      date: today,
-      checkInTime: isCheckOut ? existingAttendance[0].checkInTime : new Date(),
-      checkOutTime: isCheckOut ? new Date() : null,
-      status: 'present' as const,
-      location: scannerLocation || workerData.groupLocation || 'Unknown',
-      scannerId: scannerId,
-      attendanceMethod: 'fingerprint' as const,
-      fingerprintMatchScore: '95.0', // High confidence score for successful WebAuthn verification
-      notes: `Fingerprint scan by ${scannerId} at ${scannerLocation || 'worksite'}`
-    }
-
     if (isCheckOut) {
-      // Update existing record with check-out time
       await ensureDb()
         .update(attendance)
         .set({
-          checkOutTime: attendanceData.checkOutTime,
-          attendanceMethod: attendanceData.attendanceMethod,
-          fingerprintMatchScore: attendanceData.fingerprintMatchScore,
-          notes: attendanceData.notes
+          checkOutTime: new Date(),
+          attendanceMethod: 'fingerprint' as const,
+          fingerprintMatchScore: '95.0',
+          notes: 'Check-out via fingerprint',
         })
         .where(eq(attendance.id, existingAttendance[0].id))
     } else {
-      // Create new attendance record for check-in
-      await ensureDb().insert(attendance).values(attendanceData)
+      await ensureDb().insert(attendance).values({
+        workerId: workerId,
+        groupId: workerData.groupId,
+        date: today,
+        checkInTime: new Date(),
+        checkOutTime: null,
+        status: 'present',
+        location: workerData.groupLocation || 'Unknown',
+        checkInLatitude: latitude != null ? String(latitude) : null,
+        checkInLongitude: longitude != null ? String(longitude) : null,
+        attendanceMethod: 'fingerprint' as const,
+        fingerprintMatchScore: '95.0',
+        notes: 'Check-in via fingerprint',
+      })
     }
 
     // Calculate hours worked if checking out
@@ -197,17 +196,16 @@ export async function POST(request: NextRequest) {
         id: workerData.id,
         name: `${workerData.firstName} ${workerData.lastName}`,
         group: workerData.groupName,
-        location: workerData.groupLocation
+        location: workerData.groupLocation,
       },
       attendance: {
-        date: attendanceData.date,
-        checkInTime: attendanceData.checkInTime,
-        checkOutTime: attendanceData.checkOutTime,
+        date: today,
+        checkInTime: isCheckOut ? existingAttendance[0].checkInTime : new Date(),
+        checkOutTime: isCheckOut ? new Date() : null,
         hoursWorked: hoursWorked ? Math.round(hoursWorked * 100) / 100 : null,
-        location: attendanceData.location,
-        fingerprintMatchScore: 95.0
+        fingerprintMatchScore: 95.0,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
 
   } catch (error) {
@@ -225,8 +223,7 @@ export async function GET() {
     status: 'active',
     message: 'Fingerprint Scanner API is running',
     timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    supportedMethods: ['fingerprint'],
-    requirements: ['WebAuthn compatible scanner', 'Worker fingerprint enrollment']
+    version: '2.0.0',
+    supportedMethods: ['fingerprint', 'face'],
   })
 }

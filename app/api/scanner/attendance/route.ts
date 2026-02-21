@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
         status: attendance.status,
         location: attendance.location,
         notes: attendance.notes,
-        scannerId: attendance.scannerId
+        gpsVerified: attendance.gpsVerified,
+        gpsDistanceMeters: attendance.gpsDistanceMeters
       })
       .from(attendance)
       .innerJoin(workers, eq(attendance.workerId, workers.id))

@@ -15,7 +15,10 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    location: ''
+    location: '',
+    latitude: '',
+    longitude: '',
+    geofenceRadius: '100',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -37,14 +40,20 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
       await createGroupWithCurrentSupervisor({
         name: formData.name,
         description: formData.description || undefined,
-        location: formData.location
+        location: formData.location,
+        latitude: formData.latitude || undefined,
+        longitude: formData.longitude || undefined,
+        geofenceRadius: formData.geofenceRadius ? parseInt(formData.geofenceRadius) : 100,
       }, user.id)
 
       // Reset form and close modal
       setFormData({
         name: '',
         description: '',
-        location: ''
+        location: '',
+        latitude: '',
+        longitude: '',
+        geofenceRadius: '100',
       })
       onClose()
       
@@ -125,9 +134,71 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
             />
           </div>
 
+          {/* GPS Coordinates */}
+          <div className="border border-gray-200 rounded-md p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700">
+                GPS Coordinates (for geofencing)
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          latitude: pos.coords.latitude.toFixed(7),
+                          longitude: pos.coords.longitude.toFixed(7),
+                        }))
+                      },
+                      () => setError('Could not get your location'),
+                      { enableHighAccuracy: true }
+                    )
+                  }
+                }}
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Use My Location
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                name="latitude"
+                value={formData.latitude}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Latitude (e.g. -1.2921)"
+              />
+              <input
+                type="text"
+                name="longitude"
+                value={formData.longitude}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Longitude (e.g. 36.8219)"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                Geofence Radius (meters)
+              </label>
+              <input
+                type="number"
+                name="geofenceRadius"
+                value={formData.geofenceRadius}
+                onChange={handleChange}
+                min="50"
+                max="1000"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+          </div>
+
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> You will be automatically assigned as the supervisor of this group.
+              <strong>Note:</strong> You will be automatically assigned as the supervisor. GPS coordinates enable geofence verification for worker check-ins.
             </p>
           </div>
 

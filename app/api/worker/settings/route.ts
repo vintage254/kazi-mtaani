@@ -29,12 +29,12 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { preferredAttendanceMethod, fingerprintEnabled } = body;
+    const { preferredAttendanceMethod, fingerprintEnabled, faceEnabled } = body;
 
     const updateData: Partial<typeof workers.$inferInsert> = {};
 
     if (preferredAttendanceMethod !== undefined) {
-      if (!['qr_code', 'fingerprint', 'both'].includes(preferredAttendanceMethod)) {
+      if (!['fingerprint', 'face'].includes(preferredAttendanceMethod)) {
         return NextResponse.json({ error: 'Invalid attendance method' }, { status: 400 });
       }
       updateData.preferredAttendanceMethod = preferredAttendanceMethod;
@@ -42,6 +42,10 @@ export async function PATCH(req: NextRequest) {
 
     if (fingerprintEnabled !== undefined) {
       updateData.fingerprintEnabled = fingerprintEnabled;
+    }
+
+    if (faceEnabled !== undefined) {
+      updateData.faceEnabled = faceEnabled;
     }
 
     if (Object.keys(updateData).length === 0) {

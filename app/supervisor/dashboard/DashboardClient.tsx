@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import WorkSiteMap from '@/components/supervisor/WorkSiteMap'
 
 interface DashboardStats {
   totalWorkers: number
@@ -189,6 +190,11 @@ export default function DashboardClient() {
             <span className="text-red-600 text-sm font-medium">{stats.pendingApprovals > 0 ? 'Requires attention' : 'All up to date'}</span>
           </div>
         </div>
+      </div>
+
+      {/* Work Site Map */}
+      <div className="mb-8">
+        <WorkSiteMap />
       </div>
 
       {/* Recent Activity & Alerts */}
