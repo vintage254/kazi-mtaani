@@ -33,8 +33,8 @@ export async function loadHuman(): Promise<void> {
 
   loadingPromise = (async () => {
     try {
-      const module = await import(/* webpackIgnore: true */ HUMAN_CDN)
-      const Human = module.default || module.Human
+      const humanModule = await import(/* webpackIgnore: true */ HUMAN_CDN)
+      const Human = humanModule.default || humanModule.Human
       humanInstance = new Human(humanConfig)
       await humanInstance.warmup()
     } catch (error) {
