@@ -57,6 +57,11 @@
   }
 }
 
+/* Force dark text in form inputs regardless of dark mode */
+input, select, textarea {
+  color: #111827 !important;
+}
+
 /* Fix sidebar visibility issues */
 .sidebar-fixed {
   position: fixed !important;

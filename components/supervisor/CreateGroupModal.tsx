@@ -113,7 +113,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter group name"
             />
           </div>
@@ -129,7 +129,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
               value={formData.location}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter work location"
             />
           </div>
@@ -168,7 +168,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
                 name="latitude"
                 value={formData.latitude}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm !text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 placeholder="Latitude (e.g. -1.2921)"
               />
               <input
@@ -176,7 +176,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
                 name="longitude"
                 value={formData.longitude}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm !text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 placeholder="Longitude (e.g. 36.8219)"
               />
             </div>
@@ -191,7 +191,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
                 onChange={handleChange}
                 min="50"
                 max="1000"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm !text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter group description (optional)"
             />
           </div>

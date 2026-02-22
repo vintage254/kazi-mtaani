@@ -248,7 +248,7 @@ export default function AttendanceManagement({
               type="date"
               value={filters.dateFrom || ''}
               onChange={(e) => handleFilterChange({ dateFrom: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -257,7 +257,7 @@ export default function AttendanceManagement({
               type="date"
               value={filters.dateTo || ''}
               onChange={(e) => handleFilterChange({ dateTo: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -265,7 +265,7 @@ export default function AttendanceManagement({
             <select
               value={filters.status || ''}
               onChange={(e) => handleFilterChange({ status: e.target.value === '' ? undefined : e.target.value as 'present' | 'absent' | 'late' })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Status</option>
               <option value="present">Present</option>
@@ -280,7 +280,7 @@ export default function AttendanceManagement({
               onChange={(e) => handleFilterChange({ 
                 approvalStatus: e.target.value === '' ? undefined : e.target.value === 'true' 
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All</option>
               <option value="true">Approved</option>
