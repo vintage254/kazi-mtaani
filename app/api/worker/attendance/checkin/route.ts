@@ -106,10 +106,9 @@ export async function POST(request: NextRequest) {
       checkOutTime: isCheckOut ? new Date() : null,
       status: 'present' as const,
       location: workerData.groupLocation || 'Mobile App',
-      scannerId: 'MOBILE_APP',
-      attendanceMethod: method as 'qr_code' | 'fingerprint',
+      attendanceMethod: method as 'fingerprint' | 'face',
       fingerprintMatchScore: method === 'fingerprint' ? '95.0' : null,
-      notes: `${method === 'fingerprint' ? 'Fingerprint' : 'QR code'} check-in via mobile app`
+      notes: `${method === 'fingerprint' ? 'Fingerprint' : 'Face'} check-in via mobile app`
     }
 
     if (isCheckOut) {
@@ -120,7 +119,7 @@ export async function POST(request: NextRequest) {
           checkOutTime: attendanceData.checkOutTime,
           attendanceMethod: attendanceData.attendanceMethod,
           fingerprintMatchScore: attendanceData.fingerprintMatchScore,
-          notes: `${method === 'fingerprint' ? 'Fingerprint' : 'QR code'} check-out via mobile app`
+          notes: `${method === 'fingerprint' ? 'Fingerprint' : 'Face'} check-out via mobile app`
         })
         .where(eq(attendance.id, existingAttendance[0].id))
     } else {
