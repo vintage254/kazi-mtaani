@@ -124,7 +124,7 @@ export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group,
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
             />
           </div>
 
@@ -139,7 +139,7 @@ export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group,
               value={formData.location}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
             />
           </div>
 
@@ -152,7 +152,7 @@ export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group,
               name="supervisorId"
               value={formData.supervisorId}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
             >
               <option value="">Select a supervisor (optional)</option>
               {supervisors.map(supervisor => (
@@ -172,7 +172,7 @@ export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group,
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -190,7 +190,7 @@ export default function EditGroupModal({ isOpen, onClose, onGroupUpdated, group,
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent !text-gray-900"
             />
           </div>
 

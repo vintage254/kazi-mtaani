@@ -230,7 +230,7 @@ export default function ReportsAnalytics({
               type="date"
               value={dateRange.dateFrom}
               onChange={(e) => handleDateRangeChange({ dateFrom: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
             />
           </div>
           <div>
@@ -239,7 +239,7 @@ export default function ReportsAnalytics({
               type="date"
               value={dateRange.dateTo}
               onChange={(e) => handleDateRangeChange({ dateTo: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 !text-gray-900"
             />
           </div>
           <div className="flex items-end">
