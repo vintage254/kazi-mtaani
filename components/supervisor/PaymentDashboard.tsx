@@ -273,7 +273,7 @@ export default function PaymentDashboard({
               type="date"
               value={filters.dateFrom || ''}
               onChange={(e) => handleFilterChange({ dateFrom: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             />
           </div>
           <div>
@@ -282,7 +282,7 @@ export default function PaymentDashboard({
               type="date"
               value={filters.dateTo || ''}
               onChange={(e) => handleFilterChange({ dateTo: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             />
           </div>
           <div>
@@ -290,7 +290,7 @@ export default function PaymentDashboard({
             <select
               value={filters.status || ''}
               onChange={(e) => handleFilterChange({ status: e.target.value === '' ? undefined : e.target.value as 'pending' | 'approved' | 'disbursed' | 'failed' })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>

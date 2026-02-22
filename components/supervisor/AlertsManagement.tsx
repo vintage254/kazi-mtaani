@@ -221,7 +221,7 @@ export default function AlertsManagement() {
               <select
                 value={filters.isRead}
                 onChange={(e) => setFilters(prev => ({ ...prev, isRead: e.target.value }))}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="">All Alerts</option>
                 <option value="false">Unread Only</option>
@@ -233,7 +233,7 @@ export default function AlertsManagement() {
               <select
                 value={filters.severity}
                 onChange={(e) => setFilters(prev => ({ ...prev, severity: e.target.value }))}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="">All Severities</option>
                 <option value="critical">Critical</option>
