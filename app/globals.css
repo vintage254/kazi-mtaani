@@ -38,7 +38,7 @@
     color: hsl(var(--foreground));
   }
   input, select, textarea {
-    color: #111827;
+    color: #000000;
     background-color: #ffffff;
   }
 }
