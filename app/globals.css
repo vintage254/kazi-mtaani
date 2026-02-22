@@ -34,6 +34,9 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+  input, select, textarea {
+    color: inherit;
+  }
 }
 
 /* Fix sidebar visibility issues */
