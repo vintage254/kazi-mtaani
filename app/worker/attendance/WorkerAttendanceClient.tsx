@@ -6,7 +6,7 @@ import FingerprintAuthentication from '@/components/FingerprintAuthentication'
 import FaceAuthentication from '@/components/FaceAuthentication'
 import AttendanceMethodSettings from '@/components/AttendanceMethodSettings'
 import { useIsMobile } from '@/lib/utils/use-is-mobile'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 interface Worker {
   id: number
@@ -93,6 +93,18 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
     fetchWorkerData()
   }, [])
 
+  // Determine if worker is currently checked in today
+  const todayRecord = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0]
+    return attendanceData.find(record => {
+      const recordDate = new Date(record.date).toISOString().split('T')[0]
+      return recordDate === today && record.checkInTime
+    }) || null
+  }, [attendanceData])
+
+  const isCheckedIn = !!todayRecord?.checkInTime && !todayRecord?.checkOutTime
+  const isCheckedOut = !!todayRecord?.checkInTime && !!todayRecord?.checkOutTime
+
   if (loading || !worker) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -139,130 +151,167 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
           </div>
         </div>
 
-        {/* Check-in Status */}
+        {/* Check-in/Check-out Status */}
         <div className="bg-white rounded-lg shadow-sm border p-4 md:p-8 mb-8 text-center">
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check In?</h2>
-          <p className="text-gray-600 mb-6">Use fingerprint or face recognition to check in. Your GPS location will be verified automatically.</p>
+          {isCheckedOut ? (
+            <>
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Day Complete!</h2>
+              <p className="text-gray-600 mb-6">
+                You checked in at {todayRecord?.checkInTime ? new Date(todayRecord.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''} and
+                checked out at {todayRecord?.checkOutTime ? new Date(todayRecord.checkOutTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''}.
+                {todayRecord?.checkInTime && todayRecord?.checkOutTime && (
+                  <> You worked <strong>{((new Date(todayRecord.checkOutTime).getTime() - new Date(todayRecord.checkInTime).getTime()) / (1000 * 60 * 60)).toFixed(1)} hours</strong> today.</>
+                )}
+              </p>
+            </>
+          ) : isCheckedIn ? (
+            <>
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check Out?</h2>
+              <p className="text-gray-600 mb-6">
+                You checked in at {todayRecord?.checkInTime ? new Date(todayRecord.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''}. Use fingerprint or face recognition to check out and log your hours.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Check In?</h2>
+              <p className="text-gray-600 mb-6">Use fingerprint or face recognition to check in. Your GPS location will be verified automatically.</p>
+            </>
+          )}
 
-          <div className="space-y-4">
-            {/* Attendance Method Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              {worker.fingerprintEnabled && (
+          {!isCheckedOut && (
+            <div className="space-y-4">
+              {/* Attendance Method Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {worker.fingerprintEnabled && (
+                  <button
+                    onClick={() => { setShowFingerprintAuth(!showFingerprintAuth); setShowFaceAuth(false) }}
+                    className={`flex-1 ${isCheckedIn ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                    </svg>
+                    {showFingerprintAuth ? 'Hide Fingerprint' : isCheckedIn ? 'Check Out with Fingerprint' : 'Check In with Fingerprint'}
+                  </button>
+                )}
+
+                {worker.faceEnabled && (
+                  <button
+                    onClick={() => { setShowFaceAuth(!showFaceAuth); setShowFingerprintAuth(false) }}
+                    className={`flex-1 ${isCheckedIn ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {showFaceAuth ? 'Hide Face' : isCheckedIn ? 'Check Out with Face' : 'Check In with Face'}
+                  </button>
+                )}
+
                 <button
-                  onClick={() => { setShowFingerprintAuth(!showFingerprintAuth); setShowFaceAuth(false) }}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                  </svg>
-                  {showFingerprintAuth ? 'Hide Fingerprint' : 'Use Fingerprint'}
+                  Settings
                 </button>
-              )}
+              </div>
 
-              {worker.faceEnabled && (
-                <button
-                  onClick={() => { setShowFaceAuth(!showFaceAuth); setShowFingerprintAuth(false) }}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  {showFaceAuth ? 'Hide Face' : 'Use Face'}
-                </button>
-              )}
-
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Settings
-              </button>
-            </div>
-
-            {/* Fingerprint Authentication */}
-            {showFingerprintAuth && worker.fingerprintEnabled && (
-              <div className="mt-6">
-                <FingerprintAuthentication
-                  onAuthenticationSuccess={async () => {
-                    try {
-                      const response = await fetch('/api/worker/attendance/checkin', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          method: 'fingerprint',
-                          workerId: worker.workerId
+              {/* Fingerprint Authentication */}
+              {showFingerprintAuth && worker.fingerprintEnabled && (
+                <div className="mt-6">
+                  <FingerprintAuthentication
+                    onAuthenticationSuccess={async () => {
+                      try {
+                        const response = await fetch('/api/worker/attendance/checkin', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            method: 'fingerprint',
+                            workerId: worker.workerId
+                          })
                         })
-                      })
 
-                      if (response.ok) {
-                        alert('✓ Check-in successful! Your attendance has been logged.')
-                        setShowFingerprintAuth(false)
-                        fetchWorkerData()
-                      } else {
-                        const error = await response.json()
-                        alert(`Check-in failed: ${error.message || 'Unknown error'}`)
+                        if (response.ok) {
+                          const data = await response.json()
+                          const action = data.action || (isCheckedIn ? 'check-out' : 'check-in')
+                          alert(`${action === 'check-out' ? 'Check-out' : 'Check-in'} successful! Your attendance has been logged.`)
+                          setShowFingerprintAuth(false)
+                          fetchWorkerData()
+                        } else {
+                          const error = await response.json()
+                          alert(`Failed: ${error.message || 'Unknown error'}`)
+                        }
+                      } catch (error) {
+                        console.error('Attendance error:', error)
+                        alert('Failed to log attendance. Please try again.')
                       }
-                    } catch (error) {
-                      console.error('Check-in error:', error)
-                      alert('Failed to log attendance. Please try again.')
-                    }
-                  }}
-                  onAuthenticationError={(error) => {
-                    console.error('Fingerprint auth error:', error)
-                    alert(`Fingerprint authentication failed: ${error}`)
-                  }}
-                />
-              </div>
-            )}
+                    }}
+                    onAuthenticationError={(error) => {
+                      console.error('Fingerprint auth error:', error)
+                      alert(`Fingerprint authentication failed: ${error}`)
+                    }}
+                  />
+                </div>
+              )}
 
-            {/* Face Authentication */}
-            {showFaceAuth && worker.faceEnabled && (
-              <div className="mt-6">
-                <FaceAuthentication
-                  workerId={worker.workerId || worker.id}
-                  onAuthenticationSuccess={(result) => {
-                    alert(`Face ${result.action} successful! (${Math.round(result.matchScore)}% match)`)
-                    setShowFaceAuth(false)
-                    fetchWorkerData()
-                  }}
-                  onAuthenticationError={(error) => {
-                    console.error('Face auth error:', error)
-                  }}
-                />
-              </div>
-            )}
+              {/* Face Authentication */}
+              {showFaceAuth && worker.faceEnabled && (
+                <div className="mt-6">
+                  <FaceAuthentication
+                    workerId={worker.workerId || worker.id}
+                    onAuthenticationSuccess={(result) => {
+                      const action = result.action || (isCheckedIn ? 'check-out' : 'check-in')
+                      alert(`${action === 'check-out' ? 'Check-out' : 'Check-in'} successful! (${Math.round(result.matchScore)}% match)`)
+                      setShowFaceAuth(false)
+                      fetchWorkerData()
+                    }}
+                    onAuthenticationError={(error) => {
+                      console.error('Face auth error:', error)
+                    }}
+                  />
+                </div>
+              )}
 
-            {/* Settings Panel */}
-            {showSettings && (
-              <div className="mt-6">
-                <AttendanceMethodSettings
-                  worker={{
-                    id: worker.id,
-                    preferredAttendanceMethod: worker.preferredAttendanceMethod,
-                    fingerprintEnabled: worker.fingerprintEnabled,
-                    faceEnabled: worker.faceEnabled,
-                  }}
-                  onSettingsUpdate={(updatedWorker) => {
-                    setWorker({
-                      ...worker,
-                      preferredAttendanceMethod: updatedWorker.preferredAttendanceMethod,
-                      fingerprintEnabled: updatedWorker.fingerprintEnabled,
-                      faceEnabled: updatedWorker.faceEnabled,
-                    })
-                    setShowSettings(false)
-                  }}
-                />
-              </div>
-            )}
-          </div>
+              {/* Settings Panel */}
+              {showSettings && (
+                <div className="mt-6">
+                  <AttendanceMethodSettings
+                    worker={{
+                      id: worker.id,
+                      preferredAttendanceMethod: worker.preferredAttendanceMethod,
+                      fingerprintEnabled: worker.fingerprintEnabled,
+                      faceEnabled: worker.faceEnabled,
+                    }}
+                    onSettingsUpdate={(updatedWorker) => {
+                      setWorker({
+                        ...worker,
+                        preferredAttendanceMethod: updatedWorker.preferredAttendanceMethod,
+                        fingerprintEnabled: updatedWorker.fingerprintEnabled,
+                        faceEnabled: updatedWorker.faceEnabled,
+                      })
+                      setShowSettings(false)
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-6 text-sm text-gray-500">
             <p>Today: {new Date().toLocaleDateString('en-US', {
@@ -271,7 +320,13 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
               month: 'long',
               day: 'numeric'
             })}</p>
-            <p>Status: <span className="text-red-600 font-medium">Not Checked In</span></p>
+            <p>Status: {isCheckedOut ? (
+              <span className="text-green-600 font-medium">Checked Out</span>
+            ) : isCheckedIn ? (
+              <span className="text-blue-600 font-medium">Checked In</span>
+            ) : (
+              <span className="text-red-600 font-medium">Not Checked In</span>
+            )}</p>
           </div>
         </div>
 
@@ -321,9 +376,8 @@ export default function WorkerAttendanceClient({}: WorkerAttendanceClientProps) 
             <div className="p-6">
               <div className="space-y-4">
                 {attendanceData.length > 0 ? (
-                  attendanceData.slice(0, 5).map((record, index) => {
-                    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-                    const dayName = days[index] || new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' })
+                  attendanceData.slice(0, 5).map((record) => {
+                    const dayName = new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' })
                     const isPresent = record.activity === 'present'
 
                     return (
