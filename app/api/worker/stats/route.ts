@@ -49,7 +49,10 @@ export async function GET() {
         groupLocation: groups.location,
         supervisorId: groups.supervisorId,
         supervisorFirstName: users.firstName,
-        supervisorLastName: users.lastName
+        supervisorLastName: users.lastName,
+        preferredAttendanceMethod: workers.preferredAttendanceMethod,
+        fingerprintEnabled: workers.fingerprintEnabled,
+        faceEnabled: workers.faceEnabled
       })
       .from(workers)
       .leftJoin(groups, eq(workers.groupId, groups.id))
@@ -96,7 +99,10 @@ export async function GET() {
       status: workerData.isActive ? "Online" : "Offline",
       group: workerData.groupName || 'No Group Assigned',
       supervisor: supervisorName,
-      workerId: workerData.id
+      workerId: workerData.id,
+      preferredAttendanceMethod: workerData.preferredAttendanceMethod || 'fingerprint',
+      fingerprintEnabled: workerData.fingerprintEnabled ?? false,
+      faceEnabled: workerData.faceEnabled ?? false
     }
 
     return NextResponse.json(

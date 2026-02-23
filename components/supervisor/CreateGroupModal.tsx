@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { createGroupWithCurrentSupervisor } from '@/lib/db/actions'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -22,8 +22,70 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [locationQuery, setLocationQuery] = useState('')
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{
+    display_name: string
+    lat: string
+    lon: string
+  }>>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const suggestionsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { user } = useUser()
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const searchLocation = useCallback(async (query: string) => {
+    if (query.length < 3) {
+      setLocationSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    setIsSearching(true)
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=ke`,
+        { headers: { 'Accept-Language': 'en' } }
+      )
+      const results = await res.json()
+      setLocationSuggestions(results)
+      setShowSuggestions(results.length > 0)
+    } catch {
+      setLocationSuggestions([])
+    } finally {
+      setIsSearching(false)
+    }
+  }, [])
+
+  const handleLocationInput = (value: string) => {
+    setLocationQuery(value)
+    setFormData(prev => ({ ...prev, location: value }))
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(() => searchLocation(value), 400)
+  }
+
+  const selectLocation = (suggestion: { display_name: string; lat: string; lon: string }) => {
+    const shortName = suggestion.display_name.split(',').slice(0, 3).join(',').trim()
+    setLocationQuery(shortName)
+    setFormData(prev => ({
+      ...prev,
+      location: shortName,
+      latitude: parseFloat(suggestion.lat).toFixed(7),
+      longitude: parseFloat(suggestion.lon).toFixed(7),
+    }))
+    setShowSuggestions(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,6 +117,8 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
         longitude: '',
         geofenceRadius: '100',
       })
+      setLocationQuery('')
+      setLocationSuggestions([])
       onClose()
       
       // Trigger refresh callback to update groups list
@@ -118,20 +182,47 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated }: Cr
             />
           </div>
 
-          <div>
+          <div className="relative" ref={suggestionsRef}>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
               Location *
             </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter work location"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={locationQuery || formData.location}
+                onChange={(e) => handleLocationInput(e.target.value)}
+                onFocus={() => locationSuggestions.length > 0 && setShowSuggestions(true)}
+                required
+                autoComplete="off"
+                className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search for a location (e.g. Juja, Thika)"
+              />
+              {isSearching && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <svg className="w-4 h-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {showSuggestions && locationSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                {locationSuggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => selectLocation(s)}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                  >
+                    <span className="text-gray-900">{s.display_name.split(',').slice(0, 2).join(',')}</span>
+                    <span className="text-gray-400 text-xs block truncate">{s.display_name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* GPS Coordinates */}
