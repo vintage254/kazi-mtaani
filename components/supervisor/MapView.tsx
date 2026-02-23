@@ -58,14 +58,16 @@ export default function MapView({ data }: MapViewProps) {
     // Default center: Nairobi, Kenya
     const defaultCenter: [number, number] = [-1.2921, 36.8219]
 
-    // Find center from data
+    // Center on the single site if available, with a closer zoom
     let center = defaultCenter
+    let zoom = 13
     if (data.sites.length > 0) {
-      const firstSite = data.sites[0]
-      center = [parseFloat(firstSite.latitude), parseFloat(firstSite.longitude)]
+      const site = data.sites[0]
+      center = [parseFloat(site.latitude), parseFloat(site.longitude)]
+      zoom = 15
     }
 
-    const map = L.map(mapRef.current).setView(center, 13)
+    const map = L.map(mapRef.current).setView(center, zoom)
     mapInstanceRef.current = map
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
