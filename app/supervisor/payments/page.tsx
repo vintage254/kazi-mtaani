@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Sidebar from '@/components/supervisor/Sidebar'
 import PaymentDashboard from '@/components/supervisor/PaymentDashboard'
 import { db } from '@/lib/db'

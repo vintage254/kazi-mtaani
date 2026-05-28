@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import React from 'react'
 import Sidebar from '@/components/supervisor/Sidebar'
 import { getSupervisors } from '@/lib/db/actions'

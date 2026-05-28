@@ -2,8 +2,8 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import * as schema from './schema'
 
-// Only create database connection on server side
-if (typeof window === 'undefined') {
+// Only validate DATABASE_URL at runtime, not during next build's static generation phase
+if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not defined')
   }

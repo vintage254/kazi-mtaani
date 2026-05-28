@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="initial-scale=1, width=device-width">
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+
+   <style>
+.sign-in {
+   width: 100%;
+   height: 1024px;
+   position: relative;
+   display: flex;
+   align-items: flex-start;
+   min-width: 500px;
+   min-height: 720px;
+   text-align: left;
+   font-size: 12px;
+   color: #fff;
+   font-family: Inter;
+}
+.sign-in-screens {
+   align-self: stretch;
+   flex: 0.6667;
+   background-color: #0f1014;
+   overflow: hidden;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 160px 120px;
+   box-sizing: border-box;
+   min-width: 500px;
+}
+.sign-in-parent {
+   width: 400px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 20px;
+}
+.sign-in2 {
+   position: relative;
+   font-size: 20px;
+}
+.manatal-shortlisting-llm {
+   position: relative;
+   font-size: 14px;
+   font-weight: 500;
+   opacity: 0.8;
+}
+.microsoft-login {
+   width: 400px;
+   border-radius: 6px;
+   border: 1px solid #3f4254;
+   box-sizing: border-box;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px 0px;
+   gap: 6px;
+   font-size: 14px;
+}
+.icons8-microsoft-1 {
+   height: 24px;
+   width: 24px;
+   position: relative;
+}
+.sign-in-with {
+   position: relative;
+   font-weight: 500;
+   opacity: 0.8;
+}
+.icons8-right-1 {
+   height: 16px;
+   width: 16px;
+   position: relative;
+}
+.rectangle-parent {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   color: #3f4254;
+}
+.frame-child {
+   height: 1px;
+   flex: 1;
+   position: relative;
+   background-color: #3f4254;
+}
+.email-parent {
+   align-self: stretch;
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 8px;
+   color: #a1a5b7;
+}
+.email {
+   position: relative;
+   line-height: 14px;
+   font-weight: 600;
+}
+.basic-inputs {
+   align-self: stretch;
+   height: 38px;
+   border-radius: 4px;
+   border: 1px solid #3f4254;
+   box-sizing: border-box;
+   display: flex;
+   align-items: center;
+   padding: 13px 12px;
+}
+.examplemailcom {
+   position: relative;
+   line-height: 14px;
+}
+.show {
+   flex: 1;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   flex-shrink: 0;
+}
+.text {
+   flex: 1;
+   position: relative;
+   line-height: 100%;
+}
+.microsoft-login2 {
+   height: 20px;
+   width: 20px;
+   border-radius: 4px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px 0px;
+   box-sizing: border-box;
+}
+.icons {
+   height: 16px;
+   width: 16px;
+   position: relative;
+   overflow: hidden;
+   flex-shrink: 0;
+}
+.security-icon {
+   position: absolute;
+   height: 77.5%;
+   width: 89.38%;
+   top: 11.21%;
+   right: 5.42%;
+   bottom: 11.29%;
+   left: 5.21%;
+   max-width: 100%;
+   overflow: hidden;
+   max-height: 100%;
+}
+.clear-button {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   text-align: right;
+   color: #3e97ff;
+}
+.clear {
+   position: relative;
+   line-height: 100%;
+   font-weight: 600;
+}
+.my-buttons {
+   align-self: stretch;
+   height: 38px;
+   border-radius: 6px;
+   background-color: #3e97ff;
+   overflow: hidden;
+   flex-shrink: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 12px 16px;
+   box-sizing: border-box;
+   font-size: 13px;
+}
+.text2 {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 3px;
+   text-align: center;
+   color: #d8d8e5;
+}
+.dont-have-an {
+   flex: 1;
+   position: relative;
+   line-height: 14px;
+   font-weight: 600;
+   display: inline-block;
+   max-width: 136px;
+}
+.clear-button2 {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: right;
+   color: #3e97ff;
+}
+.clear2 {
+   position: relative;
+   line-height: 20px;
+   font-weight: 600;
+}
+.image-screen {
+   align-self: stretch;
+   flex: 1;
+   position: relative;
+   background-color: #fff;
+   overflow: hidden;
+}
+.icon {
+   position: absolute;
+   top: calc(50% - 220px);
+   left: calc(50% - 215px);
+   width: 430px;
+   height: 440px;
+   object-fit: cover;
+}
+
+
+body {
+   margin: 0;
+   line-height: normal;
+}
+   </style>
+
+
+
+</head>
+<body>
+
+   <div class="sign-in">
+      <div class="sign-in-screens">
+         <div class="sign-in-parent">
+            <b class="sign-in2">Sign in</b>
+            <div class="manatal-shortlisting-llm">Manatal Shortlisting LLM</div>
+            <div class="microsoft-login">
+               <img class="icons8-microsoft-1" alt="">
+
+               <div class="sign-in-with">Sign in with Microsoft</div>
+               <img class="icons8-right-1" alt="">
+
+            </div>
+            <div class="rectangle-parent">
+               <div class="frame-child">
+               </div>
+               <div class="sign-in-with">Or with email</div>
+               <div class="frame-child">
+               </div>
+            </div>
+            <div class="email-parent">
+               <div class="email">Email</div>
+               <div class="basic-inputs">
+                  <div class="examplemailcom">Example@mail.com</div>
+               </div>
+            </div>
+            <div class="email-parent">
+               <div class="email">Password</div>
+               <div class="basic-inputs">
+                  <div class="show">
+                     <div class="text">********</div>
+                     <div class="microsoft-login2">
+                        <div class="icons">
+                           <img class="security-icon" alt="">
+
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="clear-button">
+                  <div class="clear">Forgot Password</div>
+               </div>
+            </div>
+            <div class="my-buttons">
+               <div class="email">Sign in</div>
+            </div>
+            <div class="text2">
+               <div class="dont-have-an">Don't have an account?</div>
+               <div class="clear-button2">
+                  <div class="clear2">Sign Up</div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="image-screen">
+         <img class="icon" alt="">
+
+      </div>
+   </div>
+
+
+
+
+</body>
+</html>

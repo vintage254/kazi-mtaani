@@ -1,0 +1,15 @@
+pnpm-workspace.yaml
+.next
+node_modules
+.git
+.gitignore
+.env*
+.clerk
+coverage
+*.tsbuildinfo
+next-env.d.ts
+README.md
+*.md
+docs/
+plan/
+public/test-signin.html

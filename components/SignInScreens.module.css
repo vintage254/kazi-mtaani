@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700&display=swap');
+
+.signInScreens {
+   height: 100%;
+   flex: 1;
+   width: 100%;
+   position: relative;
+   background-color: #0f1014;
+   overflow: hidden;
+   flex-shrink: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 160px 120px;
+   box-sizing: border-box;
+   min-width: 500px;
+   text-align: left;
+   font-size: 12px;
+   color: #fff;
+   font-family: Inter;
+}
+.signInParent {
+   width: 400px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 20px;
+}
+.signIn {
+   position: relative;
+   font-size: 20px;
+}
+.manatalShortlistingLlm {
+   position: relative;
+   font-size: 14px;
+   font-weight: 500;
+   opacity: 0.8;
+}
+.microsoftLogin {
+   width: 400px;
+   border-radius: 6px;
+   border: 1px solid #3f4254;
+   box-sizing: border-box;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px 0px;
+   gap: 6px;
+   font-size: 14px;
+}
+.icons8Microsoft1 {
+   height: 24px;
+   width: 24px;
+   position: relative;
+}
+.signInWith {
+   position: relative;
+   font-weight: 500;
+   opacity: 0.8;
+}
+.icons8Right1 {
+   height: 16px;
+   width: 16px;
+   position: relative;
+}
+.rectangleParent {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   color: #3f4254;
+}
+.frameChild {
+   height: 1px;
+   flex: 1;
+   position: relative;
+   background-color: #3f4254;
+}
+.emailParent {
+   align-self: stretch;
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 8px;
+   color: #a1a5b7;
+}
+.email {
+   position: relative;
+   line-height: 14px;
+   font-weight: 600;
+}
+.basicInputs {
+   align-self: stretch;
+   height: 38px;
+   border-radius: 4px;
+   border: 1px solid #3f4254;
+   box-sizing: border-box;
+   display: flex;
+   align-items: center;
+   padding: 13px 12px;
+}
+.examplemailcom {
+   position: relative;
+   line-height: 14px;
+}
+.show {
+   flex: 1;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   flex-shrink: 0;
+}
+.text {
+   flex: 1;
+   position: relative;
+   line-height: 100%;
+}
+.microsoftLogin2 {
+   height: 20px;
+   width: 20px;
+   border-radius: 4px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px 0px;
+   box-sizing: border-box;
+}
+.icons {
+   height: 16px;
+   width: 16px;
+   position: relative;
+   overflow: hidden;
+   flex-shrink: 0;
+}
+.securityIcon {
+   position: absolute;
+   height: 77.5%;
+   width: 89.38%;
+   top: 11.21%;
+   right: 5.42%;
+   bottom: 11.29%;
+   left: 5.21%;
+   max-width: 100%;
+   overflow: hidden;
+   max-height: 100%;
+}
+.clearButton {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   text-align: right;
+   color: #3e97ff;
+}
+.clear {
+   position: relative;
+   line-height: 100%;
+   font-weight: 600;
+}
+.myButtons {
+   align-self: stretch;
+   height: 38px;
+   border-radius: 6px;
+   background-color: #3e97ff;
+   overflow: hidden;
+   flex-shrink: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 12px 16px;
+   box-sizing: border-box;
+   font-size: 13px;
+}
+.text2 {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 3px;
+   text-align: center;
+   color: #d8d8e5;
+}
+.dontHaveAn {
+   flex: 1;
+   position: relative;
+   line-height: 14px;
+   font-weight: 600;
+   display: inline-block;
+   max-width: 136px;
+}
+.clearButton2 {
+   align-self: stretch;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: right;
+   color: #3e97ff;
+}
+.clear2 {
+   position: relative;
+   line-height: 20px;
+   font-weight: 600;
+}
+
+body {
+   margin: 0; line-height: normal;
+}
